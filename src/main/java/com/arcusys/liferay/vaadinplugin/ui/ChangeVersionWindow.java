@@ -2,12 +2,14 @@ package com.arcusys.liferay.vaadinplugin.ui;
 
 import com.arcusys.liferay.vaadinplugin.ControlPanelUI;
 import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
+import com.arcusys.liferay.vaadinplugin.util.LinkParser;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
 import java.io.BufferedReader;
@@ -45,6 +47,12 @@ public class ChangeVersionWindow extends Window {
             releaseType = VaadinReleaseType.valueOf(parts[0]);
             version = parts[1];
             downloadUrl = parts[2].replace(".jar", ".zip");
+        }
+
+        public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl) {
+            this.downloadUrl = downloadUrl;
+            this.version = version;
+            this.releaseType = releaseType;
         }
 
         public String getDownloadUrl() {
@@ -110,8 +118,7 @@ public class ChangeVersionWindow extends Window {
             InputStream inputStream = null;
             BufferedReader dataInputStream = null;
             try {
-                vaadinVersionsUrl = new URL(
-                        ControlPanelPortletUtil.ALL_VERSIONS_INFO);
+                vaadinVersionsUrl = new URL(ControlPanelPortletUtil.ALL_VERSIONS_INFO);
                 inputStream = vaadinVersionsUrl.openStream();
                 dataInputStream = new BufferedReader(new InputStreamReader(
                         inputStream));
@@ -132,6 +139,79 @@ public class ChangeVersionWindow extends Window {
             }
         }
     };
+
+    private List<VaadinVersion> fetchVersionList2(List<String> versiontypes) throws IOException {
+        LinkParser parser = new LinkParser();
+        //List<String> versionsList;
+        for(String type : versiontypes){
+            String vaadinMajorVersionListUrl = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL + type + "/";
+
+        try {
+            String majorVerisonResponse = getResponseString(vaadinMajorVersionListUrl);
+            List<String> majorVersionsList = parser.getVaadinMajorVersions(majorVerisonResponse);
+
+            layout.addComponent(new Label("Major versions", ContentMode.TEXT ));
+            for(String majorVersion: majorVersionsList){
+                layout.addComponent(new Label( majorVersion, ContentMode.TEXT ));
+            }
+
+            List<String> minorVersionsList = new ArrayList<String>();
+            Dictionary<String, String> versionUrls = new Hashtable<String, String>();
+
+            for(String version: majorVersionsList){
+                String vaadinMinorVersionListUrl = vaadinMajorVersionListUrl + version +"/";
+                String minorVerisonResponse = getResponseString(vaadinMinorVersionListUrl);
+                minorVersionsList.addAll(parser.getVaadinMinorVersions(minorVerisonResponse, version));
+            }
+
+            layout.addComponent(new Label("Minor versions", ContentMode.TEXT ));
+            for(String minorVersion: minorVersionsList ){
+                layout.addComponent(new Label( minorVersion, ContentMode.TEXT ));
+            }
+
+//            List<String> minorVersionsList = new ArrayList<String>();
+//            for(String version: majorVersionsList){
+//                String vaadinMinorVersionListUrl = vaadinMajorVersionListUrl + version +"/";
+//                String minorVerisonResponse = getResponseString(vaadinMinorVersionListUrl);
+//                minorVersionsList.addAll( parser.getVaadinMinorVersions(minorVerisonResponse, version));
+//            }
+//
+//            layout.addComponent(new Label("Minor versions", ContentMode.TEXT ));
+//            for(String minorVersion: minorVersionsList ){
+//                layout.addComponent(new Label( minorVersion, ContentMode.TEXT ));
+//            }
+
+        } finally {
+
+        }
+
+    }
+        return new ArrayList<VaadinVersion>();
+    }
+
+    private String getResponseString(String downloadUrl) throws IOException {
+        URL url;
+        InputStream inputStream = null;
+        BufferedReader dataInputStream = null;
+
+        try{
+        url = new URL(downloadUrl);
+        inputStream = url.openStream();
+        dataInputStream = new BufferedReader(new InputStreamReader(inputStream));
+
+        String line;
+        StringBuffer response = new StringBuffer();
+        while ((line = dataInputStream.readLine()) != null) {
+            response.append(line);
+        }
+
+        return response.toString();
+
+        }finally {
+            ControlPanelPortletUtil.close(dataInputStream);
+            ControlPanelPortletUtil.close(inputStream);
+        }
+    }
 
     private final VerticalLayout layout = new VerticalLayout();
     private final BeanItemContainer<VaadinVersion> beanItemContainer = new BeanItemContainer<VaadinVersion>(
@@ -208,6 +288,37 @@ public class ChangeVersionWindow extends Window {
         buttonRow.addComponent(cancelButton);
 
         layout.addComponent(buttonRow);
+
+
+        Button testfetch = new Button("Test version fetching");//
+        testfetch.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                ArrayList<String> types= new ArrayList<String>();
+                types.add("release");
+
+                try{
+
+                    Collection<VaadinReleaseType> releaseTypesCollection = (Collection<VaadinReleaseType>) includeVersions.getValue();
+
+                    if (releaseTypesCollection.contains(VaadinReleaseType.nightly)) {
+                        types.add("nightly");
+                    }
+
+                    if (releaseTypesCollection.contains(VaadinReleaseType.prerelease)) {
+                        types.add("prerelease");
+                    }
+
+                    fetchVersionList2( types );
+                }catch (Exception e)
+                {
+                    Notification.show("Error: " + e.getMessage(), Notification.Type.ERROR_MESSAGE );
+                }
+            }
+        });
+
+        layout.addComponent(testfetch);
+
         updateState(false);
 
         updateFilter();

@@ -91,9 +91,9 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
         newestVaadinVersion = new NewestVaadinVersion();
 
-        createUI();
-
         onRequestStart((PortletRequest)request);
+
+        createUI();
 
         outputLog = new ILog() {
             @Override
@@ -169,6 +169,11 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         mainLayout.addComponent(outputConsole);
 
         addonsNotFoundLabel = createAddonsNotFoundLabel();
+    }
+
+    String getProtletDirectory(PortletRequest request)
+    {
+        return request.getPortletSession().getPortletContext().getRealPath("/");
     }
 
     private ProgressIndicator createProgressIndicator() {
@@ -357,6 +362,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
             } else {
                 value = "none";
             }
+
             dependencyList.setValue(value);
         }
         return dependencyList;
@@ -417,6 +423,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Label createAddonsNotFoundLabel() {
+
           Label label = new Label("<i>Vaadin add-ons not found from the add-on directory</i>.", ContentMode.HTML);
         return label ;
     }

@@ -9,14 +9,14 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import javax.portlet.PortletConfig;
+
 import com.vaadin.server.Constants;
 
 /**
@@ -57,6 +57,10 @@ public abstract class ControlPanelPortletUtil {
         return PortalUtil.getPortalLibDir();
     }
 
+    public static  String getVaadinClientJarsDir(){
+        return getPortalLibDir() + "//vaadin-clients-jars//";
+    }
+
     public static File get6VersionVaadinJarLocation() {
         // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/lib/vaadin.jar";
         File portalLibDir = new File(getPortalLibDir());
@@ -70,12 +74,12 @@ public abstract class ControlPanelPortletUtil {
     }
 
     public static File getVaadinClientCompilerJarLocation() {
-        File portalLibDir = new File(getPortalLibDir());
+        File portalLibDir = new File(getVaadinClientJarsDir());
         return new File(portalLibDir, VAADIN_CLIENT_COMPILER_JAR);
     }
 
     public static File getVaadinClientJarLocation() {
-        File portalLibDir = new File(getPortalLibDir());
+        File portalLibDir = new File(getVaadinClientJarsDir());
         return new File(portalLibDir, VAADIN_CLIENT_JAR);
     }
 
@@ -144,7 +148,6 @@ public abstract class ControlPanelPortletUtil {
 
         return null;
     }
-
 
     public static String getGwtLibDir() {
         // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/vaadin/gwt/<version>";
