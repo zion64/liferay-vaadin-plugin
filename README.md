@@ -36,7 +36,7 @@ An example of specifying liferay properties in ~/.m2/settings.xml:
 			<profile>
 				<id>liferay61</id>
 				<properties>
-					<liferay.home>/Users/jdoe/opt/liferay/liferay-portal-6.1</liferay.home>
+					<liferay.home>${user.home}/opt/liferay/liferay-portal-6.1</liferay.home>
 					<liferay.auto.deploy.dir>${liferay.home}/deploy</liferay.auto.deploy.dir>
 				</properties>
 			</profile>
