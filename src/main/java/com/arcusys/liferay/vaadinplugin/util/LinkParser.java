@@ -15,30 +15,7 @@ import java.util.regex.Pattern;
 public class LinkParser {
 
 
-    public List<String> getVaadinMajorVersions(String response)
-    {
-        Pattern pattern = Pattern.compile("<a href=\"7\\..*?./\"", Pattern.MULTILINE & Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(response);
-
-        ArrayList<String> versionList = new ArrayList<String>();
-
-        while (matcher.find()){
-            String versionstring = matcher.group();
-            Pattern versionPattern = Pattern.compile("\"7\\..*?./\"", Pattern.CASE_INSENSITIVE);
-            Matcher versionMatcher = versionPattern.matcher(versionstring);
-
-            while(versionMatcher.find())
-            {
-                String version = versionMatcher.group().replace("\"", "").replace("/","");
-                versionList.add(version);
-            }
-        }
-
-        return versionList;
-    }
-
-
-    public List<String> getVaadinMinorVersions(String response, String majorVersion)
+    public List<String> getVaadinVersions(String response, String majorVersion)
     {
         Pattern pattern = Pattern.compile("<a href=\"" + majorVersion + ".*?./\"", Pattern.MULTILINE & Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(response);
@@ -57,12 +34,5 @@ public class LinkParser {
         }
 
         return versionList;
-    }
-
-
-    public void getLinkList(String link){
-
-
-
     }
 }

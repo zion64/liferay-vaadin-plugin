@@ -9,7 +9,6 @@ import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
 import java.io.BufferedReader;
@@ -19,35 +18,22 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Igor.Borisov
- * Date: 22.02.13
- * Time: 12:49
- * To change this template use File | Settings | File Templates.
- */
 public class ChangeVersionWindow extends Window {
     private static final Log log = LogFactoryUtil
             .getLog(ChangeVersionWindow.class);
 
     private static final String VERSION_PROPERTY = "version";
     private static final String RELEASE_TYPE_PROPERTY = "releaseType";
+    private  static final String VAADIN_MAJOR_VERSION = "7";
 
     private enum VaadinReleaseType {
-        nightly, prerelease, release;
+        nightly, prerelease, release
     }
 
     public final class VaadinVersion {
         private final String version;
         private final String downloadUrl;
         private final VaadinReleaseType releaseType;
-
-        public VaadinVersion(String versionRow) {
-            String[] parts = versionRow.split(",");
-            releaseType = VaadinReleaseType.valueOf(parts[0]);
-            version = parts[1];
-            downloadUrl = parts[2].replace(".jar", ".zip");
-        }
 
         public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl) {
             this.downloadUrl = downloadUrl;
@@ -70,21 +56,13 @@ public class ChangeVersionWindow extends Window {
         public boolean isSupported() {
             String[] versionParts = version.split("\\.");
             String majorVersion = versionParts[0];
-            if (!"7".equals(majorVersion)) {
+            if (!VAADIN_MAJOR_VERSION.equals(majorVersion)) {
                 // Other major versions than 7 not supported
                 return false;
             }
-            //TODO filter alfa versions
-//            int minorVersion = Integer.parseInt(versionParts[1]);
-//            if (minorVersion < 6) {
-//                // Versions prior to 6.6.2 not supported as they doesn't bundle
-//                // the liferay theme
-//                // compilation scheme
-//                return false;
-//            }
-//            if (minorVersion == 6 && Integer.parseInt(versionParts[2]) < 2) {
-//                return false;
-//            }
+
+            if (version.contains("alpha")) return false;
+
             return true;
         }
     }
@@ -93,7 +71,14 @@ public class ChangeVersionWindow extends Window {
         @Override
         public void run() {
             try {
-                List<VaadinVersion> versionList = fetchVersionList();
+
+                Collection<VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinReleaseType>();
+                releaseTypesCollection.add(VaadinReleaseType.release);
+                releaseTypesCollection.add(VaadinReleaseType.nightly);
+                releaseTypesCollection.add(VaadinReleaseType.prerelease);
+
+                List<VaadinVersion> versionList = fetchVersionList(releaseTypesCollection);
+
                 getUI().getSession().getLockInstance().lock();
                     beanItemContainer.addAll(versionList);
                     updateState(true);
@@ -103,9 +88,7 @@ public class ChangeVersionWindow extends Window {
                 getUI().getSession().getLockInstance().lock();
 
                 layout.removeAllComponents();
-                layout.addComponent(new Label(
-                            "Version list could not be downloaded: "
-                                    + e.getMessage()));
+                layout.addComponent(new Label( "Version list could not be downloaded: " + e.getMessage()));
                 getUI().getSession().getLockInstance().unlock();
             } finally {
                 // Release memory
@@ -113,94 +96,48 @@ public class ChangeVersionWindow extends Window {
             }
         }
 
-        private List<VaadinVersion> fetchVersionList() throws IOException {
-            URL vaadinVersionsUrl;
-            InputStream inputStream = null;
-            BufferedReader dataInputStream = null;
-            try {
-                vaadinVersionsUrl = new URL(ControlPanelPortletUtil.ALL_VERSIONS_INFO);
-                inputStream = vaadinVersionsUrl.openStream();
-                dataInputStream = new BufferedReader(new InputStreamReader(
-                        inputStream));
-
-                List<VaadinVersion> list = new ArrayList<VaadinVersion>();
-                String line;
-                while ((line = dataInputStream.readLine()) != null) {
-                    VaadinVersion vaadinVersion = new VaadinVersion(line);
-                    if (vaadinVersion.isSupported()) {
-                        list.add(vaadinVersion);
-                    }
-                }
-
-                return list;
-            } finally {
-                ControlPanelPortletUtil.close(dataInputStream);
-                ControlPanelPortletUtil.close(inputStream);
-            }
-        }
-    };
-
-    private List<VaadinVersion> fetchVersionList2(Collection<VaadinReleaseType> versiontypes) throws IOException {
+    private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) throws IOException {
         LinkParser parser = new LinkParser();
-
+        List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
         for(VaadinReleaseType type : versiontypes){
         try {
-
-            List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
-
-
             String vaadinMajorVersionListUrl = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL + type + "/";
-//            String majorVerisonResponse = getResponseString(vaadinMajorVersionListUrl);
-//
-//            List<String> majorVersionsList = parser.getVaadinMajorVersions(majorVerisonResponse);
-//
-//            for(String majorVersion: majorVersionsList){
-//                String url = vaadinMajorVersionListUrl + majorVersion + "/";
-//                majorVersions.put(majorVersion, url );
-//            }
-
-            HashMap<String, String> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, "7");
+            HashMap<String, String> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, VAADIN_MAJOR_VERSION);
 
             HashMap<String, String> minorVersions = new HashMap<String, String>();
 
+            if(type == VaadinReleaseType.prerelease){
+                HashMap<String, String> versions = new HashMap<String, String>();
+                for( String version : majorVersions.keySet()){
+                    versions.putAll(getVersions(parser, majorVersions.get(version), version));
+                }
+
+                majorVersions = versions;
+            }
+
             for( String version : majorVersions.keySet()){
-                /*List<String> minorVersionsList = new ArrayList<String>();
-                String vaadinMinorVersionListUrl = majorVersions.get(version);
-                String minorVerisonResponse = getResponseString(vaadinMinorVersionListUrl);
-                minorVersionsList.addAll(parser.getVaadinMinorVersions(minorVerisonResponse, version));
-
-                for(String minorVersion: minorVersionsList)
-                {
-                    String url = vaadinMinorVersionListUrl + minorVersion + "/";
-                    minorVersions.put( minorVersion, url);
-                }*/
-
                 minorVersions.putAll(getVersions(parser, majorVersions.get(version), version));
             }
 
             for( String version : minorVersions.keySet()){
                 String zipName = "vaadin-all-" + version + ".zip";
-                vaadinVersions.add(new VaadinVersion(version, type, minorVersions.get(version) + zipName));
+                VaadinVersion vaadinVersion = new VaadinVersion(version, type, minorVersions.get(version) + zipName);
+                if(vaadinVersion.isSupported()) vaadinVersions.add(vaadinVersion);
             }
-
-            layout.addComponent(new Label("Minor versions", ContentMode.TEXT ));
-            for( VaadinVersion version : vaadinVersions){
-                layout.addComponent(new Label(version.version + " " + version.releaseType + "( " + version.downloadUrl + " )", ContentMode.TEXT));
-            }
-
-        } finally {
-
         }
-
-    }
-        return new ArrayList<VaadinVersion>();
+        catch (Exception e)
+        {
+            Notification.show("Can't fetch " + type  + " versions", Notification.Type.ERROR_MESSAGE);
+        }
+        }
+        return vaadinVersions;
     }
 
     private HashMap<String, String> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {
         String majorVerisonResponse = getResponseString(versionListUrl);
         HashMap<String, String> versionsAndUrls = new HashMap<String, String>();
 
-        List<String> versionsList = parser.getVaadinMinorVersions(majorVerisonResponse, majorVersion);
+        List<String> versionsList = parser.getVaadinVersions(majorVerisonResponse, majorVersion);
 
         for(String version: versionsList){
             String url = versionListUrl + version + "/";
@@ -232,6 +169,7 @@ public class ChangeVersionWindow extends Window {
             ControlPanelPortletUtil.close(inputStream);
         }
     }
+    };
 
     private final VerticalLayout layout = new VerticalLayout();
     private final BeanItemContainer<VaadinVersion> beanItemContainer = new BeanItemContainer<VaadinVersion>(
@@ -308,35 +246,6 @@ public class ChangeVersionWindow extends Window {
         buttonRow.addComponent(cancelButton);
 
         layout.addComponent(buttonRow);
-
-        Button testfetch = new Button("Test version fetching");//
-        testfetch.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-//                ArrayList<String> types= new ArrayList<String>();
-//                types.add("release");
-
-                try{
-
-                    Collection<VaadinReleaseType> releaseTypesCollection = (Collection<VaadinReleaseType>) includeVersions.getValue();
-//
-//                    if (releaseTypesCollection.contains(VaadinReleaseType.nightly)) {
-//                        types.add("nightly");
-//                    }
-//
-//                    if (releaseTypesCollection.contains(VaadinReleaseType.prerelease)) {
-//                        types.add("prerelease");
-//                    }
-
-                    fetchVersionList2(releaseTypesCollection);
-                }catch (Exception e)
-                {
-                    Notification.show("Error: " + e.getMessage(), Notification.Type.ERROR_MESSAGE );
-                }
-            }
-        });
-
-        layout.addComponent(testfetch);
 
         updateState(false);
 
