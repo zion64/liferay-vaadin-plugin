@@ -15,31 +15,43 @@ Building
 
 ### Environment set up
 
+This project uses some open source libraries that are not available in the
+ default Maven central (repo1.maven.org). All linked artifacts are available in
+ repository http://oss.arcusys.com/mvn/content/groups/public. That repository
+ is specified in <repositories> element of this project, but because our parent
+ pom is also located in that repository, we need to fetch it first by
+ invoking a special 'bootstrap' pom:
+ 
+	mvn -f etc/bootstrap/pom.xml dependency:resolve
+	
 If you want to use tasks of Maven Liferay Plugin (already configured in the
  project), you need to specify some local configuration properties such
  as location of the Liferay installation. The recommended way is to specify
  properties in a Maven Profile defined in ~/.m2/settings.xml.
 
-An example of specifying liferay properties in <profiles> section of ~/.m2/settings.xml:
+An example of specifying liferay properties in ~/.m2/settings.xml:
 
-	<profile>
-		<id>liferay61</id>
-		<properties>
-			<liferay.home>/Users/jdoe/opt/liferay/liferay-portal-6.1</liferay.home>
-			<liferay.auto.deploy.dir>${liferay.home}/deploy</liferay.auto.deploy.dir>
-		</properties>
-	</profile>
-
+	<settings>
+		<profiles>
+			<profile>
+				<id>liferay61</id>
+				<properties>
+					<liferay.home>/Users/jdoe/opt/liferay/liferay-portal-6.1</liferay.home>
+					<liferay.auto.deploy.dir>${liferay.home}/deploy</liferay.auto.deploy.dir>
+				</properties>
+			</profile>
+		</profiles>
+		
+		<!-- ... -->
+		<activeProfiles>
+			<activeProfile>liferay61</activeProfile>
+		</activeProfiles>
+	</settings>
+	
 The profile can be activated by various ways:
-1. By using settings.xml/<activeProfiles>
+1. By using settings.xml/<activeProfiles> (see the example above)
 2. By defining rule in <profile>/<activation>
-3. From command line option -P
-
-Here's an example of specifying the <activeProfiles> in settings.xml:
-
-	<activeProfiles>
-		<activeProfile>liferay61</activeProfile>
-	</activeProfiles>
+3. By using the command line option -P
 
 ### Building the war
 

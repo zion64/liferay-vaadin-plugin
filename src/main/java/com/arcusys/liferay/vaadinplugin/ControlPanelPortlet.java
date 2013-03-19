@@ -1,28 +1,23 @@
 package com.arcusys.liferay.vaadinplugin;
 
-import com.vaadin.server.ServiceException;
-import com.vaadin.server.SessionInitEvent;
-import com.vaadin.server.SessionInitListener;
+import com.vaadin.server.DeploymentConfiguration;
 import com.vaadin.server.VaadinPortlet;
+import com.vaadin.server.VaadinPortletService;
+import com.vaadin.server.VaadinRequest;
 
 public class ControlPanelPortlet extends VaadinPortlet {
+	private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void portletInitialized() {
-        getService().addSessionInitListener(new SessionInitListener() {
-
-            @Override
-            public void sessionInit(final SessionInitEvent event)
-                    throws ServiceException {
-                event.getSession().addUIProvider(new ControlPanelUIProvider());
-            }
-        });
+	@Override
+	protected VaadinPortletService createPortletService(
+            DeploymentConfiguration deploymentConfiguration) {
+        return new VaadinPortletService(this, deploymentConfiguration) {
+        	private static final long serialVersionUID = 1L;
+			@Override
+			public final String getStaticFileLocation(VaadinRequest request) {
+				// Use static resources (widgetsets and themes) in the portlet war:
+				return request.getContextPath();
+			}
+        };
     }
-//    @Override
-//    protected void handleRequest(final PortletRequest request,
-//                                 final PortletResponse response) throws PortletException,
-//            IOException {
-//
-//            super.handleRequest(request, response);
-//    }
 }
