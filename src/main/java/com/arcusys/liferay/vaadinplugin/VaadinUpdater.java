@@ -5,6 +5,7 @@ import com.arcusys.liferay.vaadinplugin.util.ILog;
 import com.arcusys.liferay.vaadinplugin.util.WidgetsetUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -170,14 +171,20 @@ public class VaadinUpdater implements Runnable {
             * */
 
             String portalLibDirPath = ControlPanelPortletUtil.getPortalLibDir();
+            String vaadinClientJarsDirPath =  ControlPanelPortletUtil.getVaadinClientJarsDir();
+
+            File vaadinClientJarsDir = new File(vaadinClientJarsDirPath);
+            if(!vaadinClientJarsDir.exists()){
+                vaadinClientJarsDir.mkdir();
+            }
 
             replaceFile(zipDestinationPath, portalLibDirPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR);
             replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_SHARED_JAR);
             replaceFile(zipDestinationPath + "/lib/", portalLibDirPath, ControlPanelPortletUtil.VAADIN_SHARED_DEPS_JAR);
             replaceFile(zipDestinationPath + "/lib/", portalLibDirPath, ControlPanelPortletUtil.JSOUP_JAR);
 
-            replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILER_JAR);
-            replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_JAR);
+            replaceFile(zipDestinationPath , vaadinClientJarsDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILER_JAR);
+            replaceFile(zipDestinationPath , vaadinClientJarsDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_JAR);
 
             replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_THEME_COMPILER_JAR);
             replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR);

@@ -43,8 +43,7 @@ public class NewestVaadinVersion {
         BufferedReader dataInputStream = null;
         String s;
         try {
-            newestVaadinVersionURL = new URL(
-                    ControlPanelPortletUtil.LATEST_VAADIN_INFO);
+            newestVaadinVersionURL = new URL(ControlPanelPortletUtil.LATEST_VAADIN_INFO);
             inputStream = newestVaadinVersionURL.openStream();
             dataInputStream = new BufferedReader(new InputStreamReader(
                     inputStream));
