@@ -57,8 +57,14 @@ public abstract class ControlPanelPortletUtil {
         return PortalUtil.getPortalLibDir();
     }
 
+    private static String getPortalWebDir()
+    {
+        return PortalUtil.getPortalWebDir();
+    }
+
     public static  String getVaadinClientJarsDir(){
-        return getPortalLibDir() + "//vaadin-clients-jars//";
+        // return ".../tomcat-{version}/webapps/ROOT/WEB-INF/vaadin-clients-jars/";
+        return getPortalWebDir() +"WEB-INF" + "//vaadin-clients-jars//";
     }
 
     public static File get6VersionVaadinJarLocation() {

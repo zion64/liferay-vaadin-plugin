@@ -289,7 +289,6 @@ public class ChangeVersionWindow extends Window {
 
         layout.addComponent(buttonRow);
 
-
         Button testfetch = new Button("Test version fetching");//
         testfetch.addClickListener(new Button.ClickListener() {
             @Override
