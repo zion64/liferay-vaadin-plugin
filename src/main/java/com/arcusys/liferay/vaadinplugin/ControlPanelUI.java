@@ -70,7 +70,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
     private Button additionalDependenciesButton;
 
-    private  Button compileWidgetsetButton;
+    private Button compileWidgetsetButton;
 
     private static Log log = LogFactoryUtil.getLog(ControlPanelUI.class);
 
@@ -91,17 +91,17 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
         newestVaadinVersion = new NewestVaadinVersion();
 
-        onRequestStart((PortletRequest)request);
+        onRequestStart((PortletRequest) request);
 
         createUI();
 
         outputLog = new ILog() {
             @Override
             public void log(String message) {
-                try{
+                try {
                     getSession().getLockInstance().lock();
                     outputConsole.log(message);
-                }finally {
+                } finally {
                     getSession().getLockInstance().unlock();
                 }
             }
@@ -110,7 +110,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         refreshAddons();
     }
 
-    private void createUI(){
+    private void createUI() {
         //create main layout
         mainLayout = new VerticalLayout();
         mainLayout.setWidth("720px");
@@ -132,7 +132,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         vaadinVersionLayout = createVaadinVersionLayout(vaadinNewestVersion, changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator);
         settingsLayout.addComponent(vaadinVersionLayout);
 
-        activeWidgetsetLabel= createActiveWidgetsetLabel();
+        activeWidgetsetLabel = createActiveWidgetsetLabel();
         settingsLayout.addComponent(activeWidgetsetLabel);
 
         // Add-on selection
@@ -141,7 +141,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
         //Add-on included
         includeAddonsOptionGroup = createIncludeAddonsList();
-        addonsListHolder =  createIncludeAddonsListLayout(includeAddonsOptionGroup);
+        addonsListHolder = createIncludeAddonsListLayout(includeAddonsOptionGroup);
         settingsLayout.addComponent(addonsListHolder);
 
         //addition dependencies
@@ -171,11 +171,6 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         addonsNotFoundLabel = createAddonsNotFoundLabel();
     }
 
-    String getProtletDirectory(PortletRequest request)
-    {
-        return request.getPortletSession().getPortletContext().getRealPath("/");
-    }
-
     private ProgressIndicator createProgressIndicator() {
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setIndeterminate(true);
@@ -186,7 +181,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Button createChangeVersionButton() {
-       Button button = new Button("Change version");
+        Button button = new Button("Change version");
         button.setStyleName(BaseTheme.BUTTON_LINK);
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -197,7 +192,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Button createUpdateVaadinVersionButton() {
-       Button  button = new Button("Upgrade");
+        Button button = new Button("Upgrade");
         button.setImmediate(true);
         button.setStyleName(BaseTheme.BUTTON_LINK);
         button.addClickListener(new Button.ClickListener() {
@@ -217,17 +212,14 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
                 outputLog.log("Location for download: " + downloadLocation);
 
-                try
-                {
+                try {
                     addWindow(new WarningWindow(downloadLocation));
-                }
-                catch(Exception ex)
-                {
+                } catch (Exception ex) {
                     outputLog.log(ex.getMessage());
                 }
             }
         });
-        return  button;
+        return button;
     }
 
     private HorizontalLayout createVaadinVersionLayout(String newestVersion, Button changeVersionButton, Button updateVaadinVersionButton, ProgressIndicator versionUpgradeProgressIndicator) {
@@ -272,7 +264,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         return activeWidgetsetLabel;
     }
 
-    private HorizontalLayout createAddonDirectoryLayout(){
+    private HorizontalLayout createAddonDirectoryLayout() {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setCaption("Add-on Directory");
@@ -286,7 +278,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Label createAddonLibDirLabel() {
-       Label addonLibDirLabel = new Label();
+        Label addonLibDirLabel = new Label();
         addonLibDirLabel.setSizeUndefined();
         String value = ControlPanelPortletUtil.getPortalLibDir();
         addonLibDirLabel.setValue(value);
@@ -303,7 +295,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                 refreshAddons();
             }
         });
-        button .setStyleName(BaseTheme.BUTTON_LINK);
+        button.setStyleName(BaseTheme.BUTTON_LINK);
         return button;
     }
 
@@ -368,7 +360,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         return dependencyList;
     }
 
-    private OptionGroup createIncludeAddonsList(){
+    private OptionGroup createIncludeAddonsList() {
         OptionGroup includeAddonsOptionGroup = new OptionGroup();
         includeAddonsOptionGroup.setMultiSelect(true);
         includeAddonsOptionGroup.addValueChangeListener(new Property.ValueChangeListener() {
@@ -378,6 +370,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         });
         return includeAddonsOptionGroup;
     }
+
     private VerticalLayout createIncludeAddonsListLayout(OptionGroup includeAddonsOptionGroup) {
         VerticalLayout addonsListHolder = new VerticalLayout();
         addonsListHolder.setCaption("Select Add-ons");
@@ -387,7 +380,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Button createAdditionalDependenciesButton() {
-       Button button = new Button("Manage Additional Dependencies", new Button.ClickListener() {
+        Button button = new Button("Manage Additional Dependencies", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 showAdditionalDependenciesWindow();
             }
@@ -423,13 +416,11 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Label createAddonsNotFoundLabel() {
-
-          Label label = new Label("<i>Vaadin add-ons not found from the add-on directory</i>.", ContentMode.HTML);
-        return label ;
+        return new Label("<i>Vaadin add-ons not found from the add-on directory</i>.", ContentMode.HTML);
     }
 
     private Button createCompileWidgetsetButton() {
-       Button button = new Button("Compile Widget Set",
+        return new Button("Compile Widget Set",
                 new Button.ClickListener() {
 
                     public void buttonClick(Button.ClickEvent event) {
@@ -442,15 +433,15 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                             public void compilationFinished() {
                                 System.out.println("compilation finished");
                                 getUI().getSession().getLockInstance().lock();
-                                try{
-                                setCompilationModeEnabled(false);
+                                try {
+                                    setCompilationModeEnabled(false);
 
-                                }finally {
+                                } finally {
                                     getUI().getSession().getLockInstance().unlock();
                                 }
-                            };
+                            }
                         };
-                        compiler.setWidgetset((String) activeWidgetsetLabel.getValue());
+                        compiler.setWidgetset(activeWidgetsetLabel.getValue());
                         compiler.setIncludeAddons(getIncludeAddons());
                         compiler.setAdditionalDependencies(includedDependencies);
 
@@ -458,7 +449,6 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                         executor.execute(compiler);
                     }
                 });
-        return button;
     }
 
     private void setCompilationModeEnabled(boolean enabled) {
@@ -487,7 +477,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private Button createTerminateCompilationButton() {
-        Button  button = new Button("Cancel", new Button.ClickListener() {
+        Button button = new Button("Cancel", new Button.ClickListener() {
 
             public void buttonClick(Button.ClickEvent event) {
                 compiler.terminate();
@@ -520,7 +510,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         }
     }
 
-// old method
+    // old method
     public void onRequestStart(PortletRequest request, PortletResponse response) {
         if (includedDependencies == null || selectedAddons == null) {
             PortletPreferences preferences = request.getPreferences();
@@ -549,8 +539,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         if (includedDependencies == null) {
             includedDependencies = new ArrayList<File>();
         }
-        String dependencies = preferences.getValue("additionalDependencies",
-                null);
+        String dependencies = preferences.getValue("additionalDependencies", null);
 
         if (dependencies != null) {
             File dir = new File(ControlPanelPortletUtil.getPortalLibDir());
@@ -606,17 +595,23 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                     }
 
                     private void done(boolean sucess) {
-                            refreshVersionInfo();
-                            // Stop polling
-                            versionUpgradeProgressIndicator.setEnabled(false);
-                            versionUpgradeProgressIndicator.setVisible(false);
-                            setButtonsEnabled(true);
+                        refreshVersionInfo();
+                        // Stop polling
+                        versionUpgradeProgressIndicator.setEnabled(false);
+                        versionUpgradeProgressIndicator.setVisible(false);
+                        setButtonsEnabled(true);
 
-                            vaadinUpdater = null;
+                        vaadinUpdater = null;
                     }
 
                     public void updateFailed(String message) {
                         outputLog.log(message);
+                        try{
+                        vaadinUpdater.restoreFromBackup();
+                        }catch (Exception ex)
+                        {
+                            outputLog.log("ERROR: Can't restore files. Exception: " + ex.getMessage());
+                        }
                         done(false);
                     }
                 }, outputLog);
@@ -707,27 +702,12 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
         private boolean isVaadinPortlet(Portlet portlet) {
             String portletClass = portlet.getPortletClass();
-            //outputConsole.log("portlet class: " + portletClass );
-            if ( portletClass.startsWith(
+            if (portletClass.startsWith(
                     "com.vaadin.terminal.gwt.server")) {
                 return true;
             }
-
             Map<String, String> initParams = portlet.getInitParams();
-
-           // outputConsole.log("init params: ");
-//            for(String key : initParams.keySet())
-//            {
-//                outputConsole.log("|key:  " + key + " value:  " + initParams.get(key) + "|");
-//            }
-
-            //outputConsole.log("portlet class: " + portletClass );
-
-            if (initParams.containsKey("application")) {
-                return true;
-            }
-
-            return false;
+            return initParams.containsKey("application");
         }
     }
 
@@ -736,7 +716,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     }
 
     private void refreshVersionInfo() {
-        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestVaadinVersion.getVersion(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator);;
+        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestVaadinVersion.getVersion(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator);
         settingsLayout.replaceComponent(vaadinVersionLayout, newVersionLayout);
 
         vaadinVersionLayout = newVersionLayout;

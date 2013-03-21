@@ -74,7 +74,6 @@ public class VaadinUpdater implements Runnable {
             backupDir = WidgetsetUtil.createBackupDir();
             backupPath = backupDir.getPath();
 
-            String portalLibDirPath = ControlPanelPortletUtil.getPortalLibDir();
             String vaadinClientJarsDirPath = ControlPanelPortletUtil.getVaadinClientJarsDir();
 
             File vaadinClientJarsDir = new File(vaadinClientJarsDirPath);
@@ -157,9 +156,7 @@ public class VaadinUpdater implements Runnable {
             for (VaadinFileInfo fileInfo : vaadinFileInfos) {
                 replaceFile(zipDestinationPath + fileInfo.getInnerSourcePath(), fileInfo.getPlace(), fileInfo.getName());
             }
-
             upgradeListener.updateComplete();
-
         } catch (Exception e) {
             log.warn("Exception while updating Vaadin version.", e);
             upgradeListener.updateFailed("Upgrade failed: " + e.getMessage());
@@ -197,14 +194,14 @@ public class VaadinUpdater implements Runnable {
         String backupFilesPath = backupPath + "/";
 
         Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
-        StringBuffer sb = new StringBuffer("");
+        StringBuffer sb = new StringBuffer();
         Boolean isExistsNotBackuped = false;
 
         for (VaadinFileInfo fileInfo : vaadinFileInfos) {
             try {
                 replaceFile(fileInfo.getPlace(), backupFilesPath, fileInfo.getName());
             } catch (Exception ex) {
-                sb.append(fileInfo.getName() + ", ");
+                sb.append(fileInfo.getName()).append(", ");
                 isExistsNotBackuped = true;
             }
         }
@@ -212,7 +209,48 @@ public class VaadinUpdater implements Runnable {
         if (isExistsNotBackuped) {
             outputLog.log("Can't backup next files : " + sb.toString());
         }
+    }
 
+    public void restoreFromBackup() throws IOException {
+
+        outputLog.log("Restore old vaadin files from " + backupPath);
+
+        String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
+        File vaadinResource = new File(vaadinResourcePath);
+        outputLog.log("Restore old vaadin resources : " + vaadinResourcePath + " to " + backupPath);
+        String backupreSourcesPath = backupDir.getPath() + "/resources";
+        File backupreSourcesDir = new File(backupreSourcesPath);
+        if (!backupreSourcesDir.exists()) {
+            outputLog.log("Can't restore resources. Can't find directory " + backupreSourcesPath);
+        }else
+        {
+            FileUtils.copyDirectory(backupreSourcesDir, vaadinResource);
+        }
+
+//        File vaadin6Version = ControlPanelPortletUtil.get6VersionVaadinJarLocation();
+//        if (vaadin6Version.exists()) {
+//            outputLog.log("Backup vaadin.jar : " + vaadin6Version.getAbsolutePath());
+//            FileUtils.copyFile(vaadin6Version, backupDir);
+//        }
+
+        String backupFilesPath = backupPath + "/";
+
+        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        StringBuffer sb = new StringBuffer();
+        Boolean isExistsNotBackuped = false;
+
+        for (VaadinFileInfo fileInfo : vaadinFileInfos) {
+            try {
+                replaceFile(backupFilesPath,fileInfo.getPlace() , fileInfo.getName());
+            } catch (Exception ex) {
+                sb.append(fileInfo.getName()).append(", ");
+                isExistsNotBackuped = true;
+            }
+        }
+
+        if (isExistsNotBackuped) {
+            outputLog.log("Can't restore next files : " + sb.toString());
+        }
     }
 
     private String exctractZipFile(File vaadinZipFile, String tmpPath) throws IOException {

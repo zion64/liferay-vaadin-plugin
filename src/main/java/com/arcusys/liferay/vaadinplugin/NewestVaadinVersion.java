@@ -28,13 +28,8 @@ public class NewestVaadinVersion {
         return newestVaadinVersionLocation;
     }
 
-    //TODO change code to real
     public boolean wasFound() {
-
-        if ("".equals(newestVaadinVersionLocation)) {
-            return false;
-        }
-        return true;
+        return !("".equals(newestVaadinVersionLocation));
     }
 
     private void retrieveNewestVaadinVersionAndLocation() {
