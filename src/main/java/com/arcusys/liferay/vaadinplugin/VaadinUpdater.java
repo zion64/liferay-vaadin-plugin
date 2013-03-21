@@ -59,8 +59,8 @@ public class VaadinUpdater implements Runnable {
         this.outputLog = outputLog;
     }
 
-    File backupDir = null;
-    String backupPath = null;
+   private File backupDir = null;
+   private String backupPath = null;
 
     public void run() {
         File tmpDir = null;
@@ -94,7 +94,7 @@ public class VaadinUpdater implements Runnable {
             }
 
             outputLog.log("Extracting files... ");
-            String zipDestinationPath = null;
+            String zipDestinationPath;
             try {
                 zipDestinationPath = exctractZipFile(vaadinZipFile, tmpPath);
             } catch (Exception e) {

@@ -7,9 +7,9 @@ package com.arcusys.liferay.vaadinplugin.util;
  * Time: 12:22
  */
 public class VaadinFileInfo {
-    private String name;
-    private String place;
-    private String innerSourcePath;
+    private final String name;
+    private final String place;
+    private final String innerSourcePath;
 
     public VaadinFileInfo(String name, String place)
     {

@@ -37,7 +37,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
     private static final String WARNING_UPGRADE_VAADIN_VERSION_NOT_FOUND = "Could not determine the newest Vaadin version. Please download it manually from "
             + ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL;
     private static final String WARNING_UPGRADE_VAADIN_VERSION = "Changing the Vaadin version will affect all the portlets. Two Vaadin versions can't be used at the same time.";
-    private static int POLLING_INTERVAL_MS = 500;
+    private static final int POLLING_INTERVAL_MS = 500;
 
     private VerticalLayout mainLayout;
     private Panel settingsPanel;
@@ -427,7 +427,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                         setCompilationModeEnabled(true);
                         outputConsole.clear();
 
-                        compiler = new WidgetsetCompilationHandler(outputLog
+                        compiler = new WidgetsetCompilationHandler(activeWidgetsetLabel.getValue(), getIncludeAddons(),includedDependencies, outputLog
                         ) {
                             @Override
                             public void compilationFinished() {
@@ -441,10 +441,6 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                                 }
                             }
                         };
-                        compiler.setWidgetset(activeWidgetsetLabel.getValue());
-                        compiler.setIncludeAddons(getIncludeAddons());
-                        compiler.setAdditionalDependencies(includedDependencies);
-
                         ExecutorService executor = Executors.newSingleThreadExecutor();
                         executor.execute(compiler);
                     }

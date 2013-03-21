@@ -96,7 +96,7 @@ public class ChangeVersionWindow extends Window {
             }
         }
 
-    private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) throws IOException {
+    private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) {
         LinkParser parser = new LinkParser();
         List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
         for(VaadinReleaseType type : versiontypes){
