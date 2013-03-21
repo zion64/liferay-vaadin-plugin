@@ -52,6 +52,30 @@ public abstract class ControlPanelPortletUtil {
     public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/release/7.0/LATEST?source=liferay&version=@VERSION@";
     public static final String ALL_VERSIONS_INFO = "http://vaadin.com/download/VERSIONS_ALL?source=liferay&version=@VERSION@";
 
+    private static Collection<VaadinFileInfo> vaadinFiles = null;
+
+    public static  Collection<VaadinFileInfo> getVaadinFilesInfo(){
+
+        if(vaadinFiles == null)
+        {
+            String portalPath =  getPortalLibDir();
+            String vaadinClientJarsPath =  getVaadinClientJarsDir();
+
+            vaadinFiles = Arrays.asList(
+                    new VaadinFileInfo( VAADIN_SERVER_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_SHARED_JAR, portalPath),
+                    new VaadinFileInfo( VAADIN_SHARED_DEPS_JAR, portalPath, "/lib/"),
+                    new VaadinFileInfo( JSOUP_JAR, portalPath, "/lib/"),
+                    new VaadinFileInfo( VAADIN_THEME_COMPILER_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_THEMES_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath ),
+                    new VaadinFileInfo( VAADIN_CLIENT_JAR, vaadinClientJarsPath )
+            );
+        }
+        return  vaadinFiles;
+    }
+
+
     public static String getPortalLibDir() {
         // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/lib/";
         return PortalUtil.getPortalLibDir();
@@ -140,8 +164,7 @@ public abstract class ControlPanelPortletUtil {
         return getManifestAttribute(jarFile, VAADIN_VERSION_MANIFEST_STRING);
     }
 
-    private static String getManifestAttribute(JarFile jarFile,
-                                               String versionAttribute) throws IOException {
+    private static String getManifestAttribute(JarFile jarFile, String versionAttribute) throws IOException {
         Manifest manifest = jarFile.getManifest();
         if (manifest == null) {
             return null;
@@ -310,5 +333,6 @@ public abstract class ControlPanelPortletUtil {
             log.warn(e);
         }
     }
-
 }
+
+
