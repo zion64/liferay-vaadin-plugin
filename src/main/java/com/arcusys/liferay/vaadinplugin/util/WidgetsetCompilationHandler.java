@@ -13,27 +13,26 @@ import java.util.Set;
 //import com.arcusys.vaadin.controlpanel.util.WidgetsetCompiler.CompileOutputConsumer;
 
 public class WidgetsetCompilationHandler implements Runnable {
-    private static Log log = LogFactoryUtil
-            .getLog(WidgetsetCompilationHandler.class);
+    private static Log log = LogFactoryUtil.getLog(WidgetsetCompilationHandler.class);
 
     private WidgetsetCompiler compiler;
-//    private volatile CompileOutputConsumer compileOutputConsumer;
 
     private String widgetset;
     private List<VaadinAddonInfo> includeAddons;
     private List<File> additionalDependencies;
-    private List<String> gwtDependencies;
 
     private ILog outputLog;
 
-    public WidgetsetCompilationHandler(ILog outputLog){
+    public WidgetsetCompilationHandler(String widgetset, List<VaadinAddonInfo> includeAddons, List<File> additionalDependencies, ILog outputLog){
+        this.widgetset = widgetset;
+        this.includeAddons = includeAddons;
+        this.additionalDependencies = additionalDependencies;
         this.outputLog = outputLog;
     }
 
     public void run() {
         File tmpDir = null;
         try {
-
             tmpDir = WidgetsetUtil.createTempDir();
 
             WidgetsetUtil.createWidgetset(tmpDir, widgetset, getIncludeWidgetsets());
@@ -85,11 +84,6 @@ public class WidgetsetCompilationHandler implements Runnable {
             compilationFinished();
         }
     }
-
-    public void setGWTDependencies(List<String> gwtDependencies) {
-        this.gwtDependencies = gwtDependencies;
-    }
-
     private List<File> getClasspathEntries(File entry) {
         List<File> classpathEntries = new ArrayList<File>();
         classpathEntries.add(entry);
@@ -111,31 +105,6 @@ public class WidgetsetCompilationHandler implements Runnable {
 
         // The ant.jar is located in the portal lib dir
         classpathEntries.add(ControlPanelPortletUtil.getAntJarLocation());
-
-
-
-//        File gwtDevJar = getGwtJarLocation("gwt-dev.jar");
-//        File gwtUserJar = getGwtJarLocation("gwt-user.jar");
-//        if (gwtDevJar != null) {
-//            classpathEntries.add(gwtDevJar);
-//        }
-//        if (gwtUserJar != null) {
-//            classpathEntries.add(gwtUserJar);
-//        }
-//
-//        if (gwtDependencies != null) {
-//            for (String dependency : gwtDependencies) {
-//                File gwtDependencyJar = getGwtJarLocation(dependency);
-//                if (gwtDependencyJar != null) {
-//                    classpathEntries.add(gwtDependencyJar);
-//                } else {
-//                    log.warn("Dependency file not found for compilation: "
-//                            + dependency);
-//                }
-//            }
-//        }
-
-
 
         for (VaadinAddonInfo addon : includeAddons) {
             classpathEntries.add(addon.getJarFile());
@@ -162,43 +131,5 @@ public class WidgetsetCompilationHandler implements Runnable {
     }
 
     public void compilationFinished() {
-    }
-
-    public void setWidgetset(String widgetset) {
-        this.widgetset = widgetset;
-    }
-
-//    public void setCompileOutputConsumer(
-//            CompileOutputConsumer compileOutputConsumer) {
-//        this.compileOutputConsumer = compileOutputConsumer;
-//    }
-
-    public void setIncludeAddons(List<VaadinAddonInfo> includeAddons) {
-        this.includeAddons = includeAddons;
-    }
-
-    public void setAdditionalDependencies(List<File> additionalDependencies) {
-        this.additionalDependencies = additionalDependencies;
-    }
-
-
-    public static File getGwtJarLocation(String jarFileName) {
-        // The GWT libraries are located in a separate lib dir not
-        // included in the class path of the portal
-        File gwtLibDir = new File(ControlPanelPortletUtil.getGwtLibDir());
-
-        File potentialLocation = new File(gwtLibDir, jarFileName);
-        if (potentialLocation.exists()) {
-            return potentialLocation;
-        }
-
-        File portalLibDir = new File(ControlPanelPortletUtil.getPortalLibDir());
-        // Also accept if GWT libraries are in the portal lib dir
-        potentialLocation = new File(portalLibDir, jarFileName);
-        if (potentialLocation.exists()) {
-            return potentialLocation;
-        }
-
-        return null;
     }
 }

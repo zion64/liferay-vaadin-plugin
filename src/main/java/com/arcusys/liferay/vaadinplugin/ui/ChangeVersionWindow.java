@@ -96,7 +96,7 @@ public class ChangeVersionWindow extends Window {
             }
         }
 
-    private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) throws IOException {
+    private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) {
         LinkParser parser = new LinkParser();
         List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
         for(VaadinReleaseType type : versiontypes){
@@ -130,6 +130,15 @@ public class ChangeVersionWindow extends Window {
             Notification.show("Can't fetch " + type  + " versions", Notification.Type.ERROR_MESSAGE);
         }
         }
+
+        Collections.sort(vaadinVersions, new Comparator<VaadinVersion>(){
+            @Override
+            public int compare(VaadinVersion o1, VaadinVersion o2) {
+                if(o1 == null) return -1;
+                if(o2 == null) return 1;
+                return o1.getVersion().compareTo(o2.getVersion());
+            }
+        });
         return vaadinVersions;
     }
 

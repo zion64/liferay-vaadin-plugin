@@ -33,7 +33,7 @@ public class WidgetsetCompiler {
         for (File classpathEntry : classpathEntries) {
             if(!classpathEntry.exists()){
                 someNotExists = true;
-                nonExistedFiles.append(classpathEntry.getName() + " (" + classpathEntry.getAbsolutePath() + ")<br/>");
+                nonExistedFiles.append(classpathEntry.getName()).append(" (").append(classpathEntry.getAbsolutePath()).append(")<br/>");
             }
         }
 
@@ -69,13 +69,8 @@ public class WidgetsetCompiler {
         String compilerClass = "com.google.gwt.dev.Compiler";
         args.add(compilerClass);
 
-//        args.add("-out");
         args.add("-war");
         args.add(outputDir);
-//        CompilerOptions compilerOpetions = new CompilerOptionsImpl();
-//        //compilerOpetions.
-//        Compiler compiler = new Compiler(compilerOpetions);
-
         /*-
         String style = prefStore
                 .getString(VaadinPlugin.PREFERENCES_WIDGETSET_STYLE);
@@ -130,7 +125,6 @@ public class WidgetsetCompiler {
                                 new InputStreamReader(process.getInputStream()));
                         String s = null;
                         while ((s = stdInput.readLine()) != null) {
-                            //getUI().getSession().getLockInstance().lock();
                             System.out.println(s);
                             outptLog.log(s);
                         }
@@ -200,13 +194,4 @@ public class WidgetsetCompiler {
 
         return "java";
     }
-
-//    public void setCompileOutputConsumer(
-//            CompileOutputConsumer compileOutputConsumer) {
-//        this.compileOutputConsumer = compileOutputConsumer;
-//    }
-
-//    public interface CompileOutputConsumer {
-//        public void consumeLine(String line);
-//    }
 }

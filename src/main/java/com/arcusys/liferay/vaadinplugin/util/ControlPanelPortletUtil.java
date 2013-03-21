@@ -27,8 +27,7 @@ import com.vaadin.server.Constants;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class ControlPanelPortletUtil {
-    private static Log log = LogFactoryUtil
-            .getLog(ControlPanelPortletUtil.class);
+    private static Log log = LogFactoryUtil.getLog(ControlPanelPortletUtil.class);
 
     private static final String VAADIN_VERSION_MANIFEST_STRING = "Bundle-Version";
     public static final String VAADIN_DOWNLOAD_URL = "http://vaadin.com/download/";
@@ -51,6 +50,30 @@ public abstract class ControlPanelPortletUtil {
     //public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/LATEST?source=liferay&version=@VERSION@";
     public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/release/7.0/LATEST?source=liferay&version=@VERSION@";
     public static final String ALL_VERSIONS_INFO = "http://vaadin.com/download/VERSIONS_ALL?source=liferay&version=@VERSION@";
+
+    private static Collection<VaadinFileInfo> vaadinFiles = null;
+
+    public static  Collection<VaadinFileInfo> getVaadinFilesInfo(){
+
+        if(vaadinFiles == null)
+        {
+            String portalPath =  getPortalLibDir();
+            String vaadinClientJarsPath =  getVaadinClientJarsDir();
+
+            vaadinFiles = Arrays.asList(
+                    new VaadinFileInfo( VAADIN_SERVER_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_SHARED_JAR, portalPath),
+                    new VaadinFileInfo( VAADIN_SHARED_DEPS_JAR, portalPath, "/lib/"),
+                    new VaadinFileInfo( JSOUP_JAR, portalPath, "/lib/"),
+                    new VaadinFileInfo( VAADIN_THEME_COMPILER_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_THEMES_JAR, portalPath ),
+                    new VaadinFileInfo( VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath ),
+                    new VaadinFileInfo( VAADIN_CLIENT_JAR, vaadinClientJarsPath )
+            );
+        }
+        return  vaadinFiles;
+    }
+
 
     public static String getPortalLibDir() {
         // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/lib/";
@@ -115,9 +138,10 @@ public abstract class ControlPanelPortletUtil {
      *             If the portal's Vaadin jar cannot be read
      */
     public static String getPortalVaadinVersion() throws IOException {
-        JarFile jarFile = new JarFile(getVaadinServerJarLocation());
+        JarFile jarFile = null;
 
         try {
+            jarFile = new JarFile(getVaadinServerJarLocation());
             // Check Vaadin version from manifest
             String manifestVaadinVersion = getManifestVaadinVersion(jarFile);
             if (manifestVaadinVersion != null) {
@@ -140,8 +164,7 @@ public abstract class ControlPanelPortletUtil {
         return getManifestAttribute(jarFile, VAADIN_VERSION_MANIFEST_STRING);
     }
 
-    private static String getManifestAttribute(JarFile jarFile,
-                                               String versionAttribute) throws IOException {
+    private static String getManifestAttribute(JarFile jarFile, String versionAttribute) throws IOException {
         Manifest manifest = jarFile.getManifest();
         if (manifest == null) {
             return null;
@@ -153,18 +176,6 @@ public abstract class ControlPanelPortletUtil {
         }
 
         return null;
-    }
-
-    public static String getGwtLibDir() {
-        // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/vaadin/gwt/<version>";
-        String version = "";
-//        try {
-            version = "";//getRequiredGWTVersion();
-//        } catch (IOException e) {
-//            version = "unknown";
-//            log.warn("Could not obtain required GWT version number.", e);
-//        }
-        return PortalUtil.getPortalWebDir() + "/WEB-INF/vaadin/gwt/" + version;
     }
 
     public static String getPortalWidgetset() {
@@ -212,8 +223,7 @@ public abstract class ControlPanelPortletUtil {
      * @param targetFilename
      * @throws IOException
      */
-    public static void download(String downloadUrl, String targetDir,
-                                String targetFilename) throws IOException {
+    public static void download(String downloadUrl, String targetDir, String targetFilename) throws IOException {
         File f = new File(targetDir);
         f.mkdirs();
         URL url = new URL(downloadUrl);
@@ -310,5 +320,6 @@ public abstract class ControlPanelPortletUtil {
             log.warn(e);
         }
     }
-
 }
+
+

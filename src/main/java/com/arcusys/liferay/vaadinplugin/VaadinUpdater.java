@@ -2,13 +2,14 @@ package com.arcusys.liferay.vaadinplugin;
 
 import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
 import com.arcusys.liferay.vaadinplugin.util.ILog;
+import com.arcusys.liferay.vaadinplugin.util.VaadinFileInfo;
 import com.arcusys.liferay.vaadinplugin.util.WidgetsetUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.service.PortletLocalServiceUtil;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -20,7 +21,6 @@ import java.util.zip.ZipInputStream;
  * User: Igor.Borisov
  * Date: 15.02.13
  * Time: 19:00
- * To change this template use File | Settings | File Templates.
  */
 
 /*
@@ -49,6 +49,7 @@ public class VaadinUpdater implements Runnable {
 
     public interface UpgradeListener {
         void updateComplete();
+
         void updateFailed(String message);
     }
 
@@ -58,17 +59,30 @@ public class VaadinUpdater implements Runnable {
         this.outputLog = outputLog;
     }
 
+   private File backupDir = null;
+   private String backupPath = null;
+
     public void run() {
         File tmpDir = null;
-        File vaadinZipFile = null;
-        String tmpPath = null;
+        File vaadinZipFile;
+        String tmpPath;
 
         try {
             tmpDir = WidgetsetUtil.createTempDir();
             tmpPath = tmpDir.getPath();
+
+            backupDir = WidgetsetUtil.createBackupDir();
+            backupPath = backupDir.getPath();
+
+            String vaadinClientJarsDirPath = ControlPanelPortletUtil.getVaadinClientJarsDir();
+
+            File vaadinClientJarsDir = new File(vaadinClientJarsDirPath);
+            if (!vaadinClientJarsDir.exists()) {
+                vaadinClientJarsDir.mkdir();
+            }
+
             try {
-                outputLog.log("Downloading " + downloadLocation + " to "
-                        + tmpPath);
+                outputLog.log("Downloading " + downloadLocation + " to " + tmpPath);
                 ControlPanelPortletUtil.download(downloadLocation, tmpPath, ControlPanelPortletUtil.VAADIN_ALL_ZIP);
                 vaadinZipFile = new File(tmpDir, ControlPanelPortletUtil.VAADIN_ALL_ZIP);
 
@@ -80,61 +94,28 @@ public class VaadinUpdater implements Runnable {
             }
 
             outputLog.log("Extracting files... ");
-
-            byte[] buf = new byte[1024];
-            String zipDestinationPath = tmpPath + "/unzip/";
-            File unzipDirectory = new File(zipDestinationPath);
-            if(!unzipDirectory.mkdir()){
-                log.warn("Zip extract failed.");
-                upgradeListener.updateFailed("Zip extract failed: Can not create directory " + zipDestinationPath);
-                return;
-            }
-
+            String zipDestinationPath;
             try {
-                ZipInputStream zinstream = new ZipInputStream(new FileInputStream(vaadinZipFile.getAbsolutePath()));
-                ZipEntry zentry = zinstream.getNextEntry();
-
-                while (zentry != null) {
-                    String entryName = zentry.getName();
-                    if(zentry.isDirectory())
-                    {
-                        File newFile = new File(zipDestinationPath + entryName);
-                        if(!newFile.mkdir()){
-                            break;
-                        }
-                        zentry = zinstream.getNextEntry();
-                        continue;
-                    }
-                    outputLog.log("Extracting " + entryName);
-                    FileOutputStream outstream = new FileOutputStream(zipDestinationPath +  getFileNameWithoutVersion(entryName));
-                    int n;
-
-                    while ((n = zinstream.read(buf, 0, 1024)) > -1) {
-                        outstream.write(buf, 0, n);
-                    }
-
-                    outputLog.log("Successfully Extracted File Name : " + entryName);
-                    outstream.close();
-
-                    zinstream.closeEntry();
-                    zentry = zinstream.getNextEntry();
-                }
-                zinstream.close();
+                zipDestinationPath = exctractZipFile(vaadinZipFile, tmpPath);
             } catch (Exception e) {
                 log.warn("Unzip failed.", e);
                 upgradeListener.updateFailed("Extraction failed: " + e.getMessage());
                 return;
             }
 
-             String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
-             File vaadinResource = new File(vaadinResourcePath);
-             if(vaadinResource.exists()){
-                 outputLog.log("Removing old vaadin resources : " + vaadinResourcePath);
-                  FileUtils.deleteDirectory(vaadinResource);
-             }
+            if (zipDestinationPath == null) return;
+
+            backupOldFiles();
+
+            String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
+            File vaadinResource = new File(vaadinResourcePath);
+            if (vaadinResource.exists()) {
+                outputLog.log("Removing old vaadin resources : " + vaadinResourcePath);
+                FileUtils.deleteDirectory(vaadinResource);
+            }
 
             File vaadin6Version = ControlPanelPortletUtil.get6VersionVaadinJarLocation();
-            if(vaadin6Version.exists()){
+            if (vaadin6Version.exists()) {
                 outputLog.log("Removing old vaadin.jar : " + vaadin6Version.getAbsolutePath());
                 vaadin6Version.delete();
             }
@@ -143,7 +124,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-server.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts vaadinBootstrap.js which is needed by all Vaadin applications.
 */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR, "/vaadin-server/", vaadinResourcePath)){
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR, "/vaadin-server/", vaadinResourcePath)) {
                 return;
             }
 
@@ -151,7 +132,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-themes.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts all Vaadin themes.
              */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR,"/vaadin-themes/", vaadinResourcePath)){
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR, "/vaadin-themes/", vaadinResourcePath)) {
                 return;
             }
 
@@ -159,7 +140,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-client-compiled.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts the default widget set.
             */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILED_JAR, "/vaadin-client-compiled/", vaadinResourcePath)){
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILED_JAR, "/vaadin-client-compiled/", vaadinResourcePath)) {
                 return;
             }
 
@@ -170,27 +151,12 @@ public class VaadinUpdater implements Runnable {
             *
             * */
 
-            String portalLibDirPath = ControlPanelPortletUtil.getPortalLibDir();
-            String vaadinClientJarsDirPath =  ControlPanelPortletUtil.getVaadinClientJarsDir();
+            Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
 
-            File vaadinClientJarsDir = new File(vaadinClientJarsDirPath);
-            if(!vaadinClientJarsDir.exists()){
-                vaadinClientJarsDir.mkdir();
+            for (VaadinFileInfo fileInfo : vaadinFileInfos) {
+                replaceFile(zipDestinationPath + fileInfo.getInnerSourcePath(), fileInfo.getPlace(), fileInfo.getName());
             }
-
-            replaceFile(zipDestinationPath, portalLibDirPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR);
-            replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_SHARED_JAR);
-            replaceFile(zipDestinationPath + "/lib/", portalLibDirPath, ControlPanelPortletUtil.VAADIN_SHARED_DEPS_JAR);
-            replaceFile(zipDestinationPath + "/lib/", portalLibDirPath, ControlPanelPortletUtil.JSOUP_JAR);
-
-            replaceFile(zipDestinationPath , vaadinClientJarsDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILER_JAR);
-            replaceFile(zipDestinationPath , vaadinClientJarsDirPath, ControlPanelPortletUtil.VAADIN_CLIENT_JAR);
-
-            replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_THEME_COMPILER_JAR);
-            replaceFile(zipDestinationPath , portalLibDirPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR);
-
             upgradeListener.updateComplete();
-
         } catch (Exception e) {
             log.warn("Exception while updating Vaadin version.", e);
             upgradeListener.updateFailed("Upgrade failed: " + e.getMessage());
@@ -203,9 +169,139 @@ public class VaadinUpdater implements Runnable {
         }
     }
 
+    private void backupOldFiles() throws IOException {
+        outputLog.log("Backup old vaadin files to " + backupPath);
+
+        String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
+        File vaadinResource = new File(vaadinResourcePath);
+        outputLog.log("Backup old vaadin resources : " + vaadinResourcePath + " to " + backupPath);
+        String backupreSourcesPath = backupDir.getPath() + "/resources";
+        File backupreSourcesDir = new File(backupreSourcesPath);
+        if (backupreSourcesDir.exists()) FileUtils.deleteDirectory(backupreSourcesDir);
+        if(!backupreSourcesDir.mkdir()){
+            outputLog.log("Can't backup resources. Can't create directory " + backupreSourcesPath);
+        }else
+        {
+            FileUtils.copyDirectory(vaadinResource, backupreSourcesDir);
+        }
+
+        File vaadin6Version = ControlPanelPortletUtil.get6VersionVaadinJarLocation();
+        if (vaadin6Version.exists()) {
+            outputLog.log("Backup vaadin.jar : " + vaadin6Version.getAbsolutePath());
+            FileUtils.copyFile(vaadin6Version, backupDir);
+        }
+
+        String backupFilesPath = backupPath + "/";
+
+        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        StringBuffer sb = new StringBuffer();
+        Boolean isExistsNotBackuped = false;
+
+        for (VaadinFileInfo fileInfo : vaadinFileInfos) {
+            try {
+                replaceFile(fileInfo.getPlace(), backupFilesPath, fileInfo.getName());
+            } catch (Exception ex) {
+                sb.append(fileInfo.getName()).append(", ");
+                isExistsNotBackuped = true;
+            }
+        }
+
+        if (isExistsNotBackuped) {
+            outputLog.log("Can't backup next files : " + sb.toString());
+        }
+    }
+
+    public void restoreFromBackup() throws IOException {
+
+        outputLog.log("Restore old vaadin files from " + backupPath);
+
+        String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
+        File vaadinResource = new File(vaadinResourcePath);
+        outputLog.log("Restore old vaadin resources : " + vaadinResourcePath + " to " + backupPath);
+        String backupreSourcesPath = backupDir.getPath() + "/resources";
+        File backupreSourcesDir = new File(backupreSourcesPath);
+        if (!backupreSourcesDir.exists()) {
+            outputLog.log("Can't restore resources. Can't find directory " + backupreSourcesPath);
+        }else
+        {
+            FileUtils.copyDirectory(backupreSourcesDir, vaadinResource);
+        }
+
+//        File vaadin6Version = ControlPanelPortletUtil.get6VersionVaadinJarLocation();
+//        if (vaadin6Version.exists()) {
+//            outputLog.log("Backup vaadin.jar : " + vaadin6Version.getAbsolutePath());
+//            FileUtils.copyFile(vaadin6Version, backupDir);
+//        }
+
+        String backupFilesPath = backupPath + "/";
+
+        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        StringBuffer sb = new StringBuffer();
+        Boolean isExistsNotBackuped = false;
+
+        for (VaadinFileInfo fileInfo : vaadinFileInfos) {
+            try {
+                replaceFile(backupFilesPath,fileInfo.getPlace() , fileInfo.getName());
+            } catch (Exception ex) {
+                sb.append(fileInfo.getName()).append(", ");
+                isExistsNotBackuped = true;
+            }
+        }
+
+        if (isExistsNotBackuped) {
+            outputLog.log("Can't restore next files : " + sb.toString());
+        }
+    }
+
+    private String exctractZipFile(File vaadinZipFile, String tmpPath) throws IOException {
+        byte[] buf = new byte[1024];
+        String zipDestinationPath = tmpPath + "/unzip/";
+        File unzipDirectory = new File(zipDestinationPath);
+        if (!unzipDirectory.mkdir()) {
+            log.warn("Zip extract failed.");
+            upgradeListener.updateFailed("Zip extract failed: Can not create directory " + zipDestinationPath);
+            return null;
+        }
+
+        ZipInputStream zinstream = new ZipInputStream(new FileInputStream(vaadinZipFile.getAbsolutePath()));
+        ZipEntry zentry = zinstream.getNextEntry();
+
+        while (zentry != null) {
+            String entryName = zentry.getName();
+            if (zentry.isDirectory()) {
+                File newFile = new File(zipDestinationPath + entryName);
+                if (!newFile.mkdir()) {
+                    break;
+                }
+                zentry = zinstream.getNextEntry();
+                continue;
+            }
+            outputLog.log("Extracting " + entryName);
+            FileOutputStream outstream = new FileOutputStream(zipDestinationPath + getFileNameWithoutVersion(entryName));
+            int n;
+
+            while ((n = zinstream.read(buf, 0, 1024)) > -1) {
+                outstream.write(buf, 0, n);
+            }
+
+            outputLog.log("Successfully Extracted File Name : " + entryName);
+            outstream.close();
+
+            zinstream.closeEntry();
+            zentry = zinstream.getNextEntry();
+        }
+        zinstream.close();
+
+        return zipDestinationPath;
+    }
+
     private void replaceFile(String sourceDir, String destinationDir, String fileName) throws IOException {
-        File newJar = new File(sourceDir + fileName);
-        File oldJar = new File(destinationDir + fileName);
+        String destinatoinFilePath = destinationDir + fileName;
+        String sourceFilePath = sourceDir + fileName;
+
+        outputLog.log("Copying files: " + sourceFilePath + " to " + destinatoinFilePath);
+        File newJar = new File(sourceFilePath);
+        File oldJar = new File(destinatoinFilePath);
         FileUtils.copyFile(newJar, oldJar, true);
     }
 
@@ -233,9 +329,9 @@ public class VaadinUpdater implements Runnable {
             vaadinJar.close();
         }
 
-        String vaadinExtractedVaadinPath = vaadinExtractedPath+ "/VAADIN/";
+        String vaadinExtractedVaadinPath = vaadinExtractedPath + "/VAADIN/";
         File vaadinExtractedVaadin = new File(vaadinExtractedVaadinPath);
-        if(!vaadinExtractedVaadin.exists()){
+        if (!vaadinExtractedVaadin.exists()) {
             upgradeListener.updateFailed("Could not find " + vaadinExtractedVaadinPath);
             return true;
         }
@@ -244,34 +340,7 @@ public class VaadinUpdater implements Runnable {
         return false;
     }
 
-    private String getFileNameWithoutVersion(String fileName)
-    {
-       return fileName.replaceAll("-[0-9.]+.*" , ".jar");
-    }
-
-
-
-    private void replace(File[] themes, File vaadinFile) throws Exception {
-        if (themes != null && vaadinFile != null) {
-            File themeDir = new File(
-                    ControlPanelPortletUtil.getVaadinResourceDir() + "/themes/");
-            for (File theme : themes) {
-                if (theme.exists()) {
-                    File oldTheme = new File(themeDir, theme.getName());
-                    if (oldTheme.exists()) {
-                        try {
-                            FileUtils.deleteDirectory(oldTheme);
-                        } catch (IOException e) {
-                            log.warn(e);
-                        }
-                    }
-                    FileUtils.copyDirectory(theme, oldTheme);
-                }
-            }
-            File oldVaadinFile = ControlPanelPortletUtil.getVaadinServerJarLocation();
-            FileUtils.copyFile(vaadinFile, oldVaadinFile);
-        } else {
-            throw new Exception("Download incomplete.");
-        }
+    private String getFileNameWithoutVersion(String fileName) {
+        return fileName.replaceAll("-[0-9.]+.*", ".jar");
     }
 }

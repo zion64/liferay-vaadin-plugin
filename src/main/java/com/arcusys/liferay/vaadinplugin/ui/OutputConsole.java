@@ -11,13 +11,11 @@ import com.vaadin.ui.Notification;
 @SuppressWarnings("serial")
 public class OutputConsole extends CustomComponent {
 
-    private Panel panel = new Panel();
-
     private Label outputLabel = new Label("", ContentMode.HTML);
-
     private Label scrollToLabel = new Label();
 
     public OutputConsole(String caption) {
+        Panel panel = new Panel();
         panel.setCaption(caption);
         panel.setSizeFull();
         setCompositionRoot(panel);
@@ -49,9 +47,5 @@ public class OutputConsole extends CustomComponent {
             outputLabel.setValue(outputLabel.getValue() + msg);
             getUI().scrollIntoView(scrollToLabel);
         }
-    }
-
-    public void error(String msg) {
-        log(msg);
     }
 }
