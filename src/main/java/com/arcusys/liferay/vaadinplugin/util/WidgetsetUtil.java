@@ -19,6 +19,7 @@ public abstract class WidgetsetUtil {
     private static Log log = LogFactoryUtil.getLog(WidgetsetUtil.class);
 
     private static final String TMP_DIR_PREFIX = "vaadinws";
+    private static final String BCKP_DIR_PREFIX = "vaadinbckp";
 
     private static final int MAX_NUMBER_OF_WIDGETSET_BACKUPS = 5;
 
@@ -34,7 +35,7 @@ public abstract class WidgetsetUtil {
         for (File jar : jars) {
             includeVaadinAddonJar(jar, addons);
         }
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
         // sb.append("Widgetsets found:\n");
         // for (String ws : widgetsets.keySet()) {
         // sb.append("\t");
@@ -75,13 +76,15 @@ public abstract class WidgetsetUtil {
 
                     List<String> widgetsets = new ArrayList<String>();
                     String[] widgetsetNames = value.split(",");
-                    for (int i = 0; i < widgetsetNames.length; i++) {
-                        String widgetsetname = widgetsetNames[i].trim()
+                    for(String wName: widgetsetNames )
+                    {
+                        String widgetsetname = wName.trim()
                                 .intern();
                         if (!widgetsetname.equals("")) {
                             widgetsets.add(widgetsetname);
                         }
                     }
+
                     if (!widgetsets.isEmpty()) {
                         addons.add(new VaadinAddonInfo(name, version, file,
                                 widgetsets));
@@ -90,7 +93,6 @@ public abstract class WidgetsetUtil {
             }
         } catch (Exception e) {
             log.warn("Exception trying to include Vaadin Add-ons.", e);
-            return;
         }
 
     }
@@ -138,8 +140,15 @@ public abstract class WidgetsetUtil {
     }
 
     public static File createTempDir() throws IOException {
+        return createTmpWorkDir(TMP_DIR_PREFIX);
+    }
 
-        File temp = File.createTempFile(TMP_DIR_PREFIX, null);
+    public static File createBackupDir() throws IOException {
+        return createTmpWorkDir(BCKP_DIR_PREFIX);
+    }
+
+    private static File createTmpWorkDir(String dirName)throws IOException {
+        File temp = File.createTempFile(dirName, null);
 
         if (!temp.delete()) {
             throw new IOException("Could not delete temp file: "
@@ -153,6 +162,7 @@ public abstract class WidgetsetUtil {
 
         return temp;
     }
+
 
     public static void backupOldWidgetset(String originalWidgetset)
             throws IOException {

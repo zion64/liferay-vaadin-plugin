@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
  * User: Igor.Borisov
  * Date: 18.03.13
  * Time: 11:10
- * To change this template use File | Settings | File Templates.
  */
 public class LinkParser {
 
