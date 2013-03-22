@@ -10,6 +10,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import org.joda.time.DateTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class ChangeVersionWindow extends Window {
     private static final Log log = LogFactoryUtil
             .getLog(ChangeVersionWindow.class);
 
-    private static final String VERSION_PROPERTY = "version";
+    private static final String VERSION_PROPERTY = "name";
     private static final String RELEASE_TYPE_PROPERTY = "releaseType";
     private  static final String VAADIN_MAJOR_VERSION = "7";
 
@@ -34,11 +35,15 @@ public class ChangeVersionWindow extends Window {
         private final String version;
         private final String downloadUrl;
         private final VaadinReleaseType releaseType;
+        private final DateTime releaseDate;
+        private final String name;
 
-        public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl) {
+        public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl, DateTime releaseDate) {
             this.downloadUrl = downloadUrl;
             this.version = version;
             this.releaseType = releaseType;
+            this.releaseDate = releaseDate;
+            this.name = version + " (" + releaseDate.toString("dd-MM-yyyy hh:mm") + ")";
         }
 
         public String getDownloadUrl() {
@@ -51,6 +56,14 @@ public class ChangeVersionWindow extends Window {
 
         public String getVersion() {
             return version;
+        }
+
+        public String getName(){
+            return  name;
+        }
+
+        public DateTime getReleaseDate() {
+            return releaseDate;
         }
 
         public boolean isSupported() {
@@ -102,26 +115,26 @@ public class ChangeVersionWindow extends Window {
         for(VaadinReleaseType type : versiontypes){
         try {
             String vaadinMajorVersionListUrl = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL + type + "/";
-            HashMap<String, String> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, VAADIN_MAJOR_VERSION);
+            List<LinkParser.VersionData> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, VAADIN_MAJOR_VERSION);
 
-            HashMap<String, String> minorVersions = new HashMap<String, String>();
+            List<LinkParser.VersionData> minorVersions = new ArrayList<LinkParser.VersionData>();
 
             if(type == VaadinReleaseType.prerelease){
-                HashMap<String, String> versions = new HashMap<String, String>();
-                for( String version : majorVersions.keySet()){
-                    versions.putAll(getVersions(parser, majorVersions.get(version), version));
+                List<LinkParser.VersionData> versions = new ArrayList<LinkParser.VersionData>();
+                for(LinkParser.VersionData version : majorVersions){
+                    versions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
                 }
 
                 majorVersions = versions;
             }
 
-            for( String version : majorVersions.keySet()){
-                minorVersions.putAll(getVersions(parser, majorVersions.get(version), version));
+            for(LinkParser.VersionData version : majorVersions){
+                minorVersions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
             }
 
-            for( String version : minorVersions.keySet()){
-                String zipName = "vaadin-all-" + version + ".zip";
-                VaadinVersion vaadinVersion = new VaadinVersion(version, type, minorVersions.get(version) + zipName);
+            for(LinkParser.VersionData versionData : minorVersions){
+                String zipName = "vaadin-all-" + versionData.getVersion() + ".zip";
+                VaadinVersion vaadinVersion = new VaadinVersion(versionData.getVersion(), type,versionData.getUrl() + zipName, versionData.getDate());
                 if(vaadinVersion.isSupported()) vaadinVersions.add(vaadinVersion);
             }
         }
@@ -136,22 +149,39 @@ public class ChangeVersionWindow extends Window {
             public int compare(VaadinVersion o1, VaadinVersion o2) {
                 if(o1 == null) return -1;
                 if(o2 == null) return 1;
-                return o1.getVersion().compareTo(o2.getVersion());
+
+                String vers1 = o1.getVersion().substring(0,5);
+                String vers2 = o2.getVersion().substring(0,5);
+
+                if(vers1.compareTo(vers2) == 0){
+
+                if(o1.getReleaseDate() != null && o2.getReleaseDate() != null){
+                    return o1.getReleaseDate().compareTo(o2.getReleaseDate());
+                }
+                else {
+                    return o1.getVersion().compareTo(o2.getVersion());
+                }
+                }else
+                {
+                    return o1.getVersion().compareTo(o2.getVersion());
+                }
+
             }
         });
         return vaadinVersions;
     }
 
-    private HashMap<String, String> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {
+    private List<LinkParser.VersionData> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {
         String majorVerisonResponse = getResponseString(versionListUrl);
-        HashMap<String, String> versionsAndUrls = new HashMap<String, String>();
+//        ArrayList<VaadinVersion> versionsAndUrls = new ArrayList<VaadinVersion>();
 
-        List<String> versionsList = parser.getVaadinVersions(majorVerisonResponse, majorVersion);
+        List<LinkParser.VersionData> versionsAndUrls = parser.getVaadinVersionsAndDates(majorVerisonResponse, majorVersion, versionListUrl);
 
-        for(String version: versionsList){
-            String url = versionListUrl + version + "/";
-            versionsAndUrls.put(version, url );
-        }
+//        for(LinkParser.VersionData version: versionsList){
+//            String url = versionListUrl + version.getVersion()+ "/";
+//            versionsAndUrls.add(new LinkParser.VersionData(version.getVersion(), version.getDate(), url));
+//        }
+
         return versionsAndUrls;
     }
 

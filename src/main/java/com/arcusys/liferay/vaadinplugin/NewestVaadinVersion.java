@@ -12,7 +12,7 @@ import java.net.URL;
 
 public class NewestVaadinVersion {
     private final Log log = LogFactoryUtil.getLog(NewestVaadinVersion.class);
-
+    private final String maxMajorVersion = "7";
     private String newestVaadinVersion;
     private String newestVaadinVersionLocation;
 
@@ -37,22 +37,32 @@ public class NewestVaadinVersion {
         InputStream inputStream = null;
         BufferedReader dataInputStream = null;
         String s;
+        String version = "";
+        String location = "";
         try {
             newestVaadinVersionURL = new URL(ControlPanelPortletUtil.LATEST_VAADIN_INFO);
             inputStream = newestVaadinVersionURL.openStream();
             dataInputStream = new BufferedReader(new InputStreamReader(
                     inputStream));
             if ((s = dataInputStream.readLine()) != null) {
-                newestVaadinVersion = s;
+                version = s.trim();
             }
             if ((s = dataInputStream.readLine()) != null) {
-                newestVaadinVersionLocation = s;
+                location= s.trim();
             }
+
+            if (!version.startsWith(maxMajorVersion)) {
+                version = "Can't find latest " + maxMajorVersion + ".* version";
+                location = "";
+            }
+
         } catch (Exception e) {
             log.warn(e);
-            newestVaadinVersion = "unknown";
-            newestVaadinVersionLocation = "";
+            version = "unknown";
+            location = "";
         } finally {
+            newestVaadinVersion = version;
+            newestVaadinVersionLocation = location;
             ControlPanelPortletUtil.close(dataInputStream);
             ControlPanelPortletUtil.close(inputStream);
         }
