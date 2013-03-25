@@ -108,7 +108,7 @@ public abstract class WidgetsetUtil {
                                        Set<String> includeWidgetsets) throws IOException {
 
         String dir = widgetset.substring(0, widgetset.lastIndexOf("."))
-                .replace(".", "/");
+                .replace(".", ControlPanelPortletUtil.FileSeparator);
         String file = widgetset.substring(widgetset.lastIndexOf(".") + 1,
                 widgetset.length()) + ".gwt.xml";
 
