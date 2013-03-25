@@ -53,6 +53,8 @@ public abstract class ControlPanelPortletUtil {
 
     private static Collection<VaadinFileInfo> vaadinFiles = null;
 
+    public static final String FileSeparator = File.separator;
+
     public static  Collection<VaadinFileInfo> getVaadinFilesInfo(){
 
         if(vaadinFiles == null)
@@ -63,8 +65,8 @@ public abstract class ControlPanelPortletUtil {
             vaadinFiles = Arrays.asList(
                     new VaadinFileInfo( VAADIN_SERVER_JAR, portalPath ),
                     new VaadinFileInfo( VAADIN_SHARED_JAR, portalPath),
-                    new VaadinFileInfo( VAADIN_SHARED_DEPS_JAR, portalPath, "/lib/"),
-                    new VaadinFileInfo( JSOUP_JAR, portalPath, "/lib/"),
+                    new VaadinFileInfo( VAADIN_SHARED_DEPS_JAR, portalPath, FileSeparator +  "lib" + FileSeparator),
+                    new VaadinFileInfo( JSOUP_JAR, portalPath, FileSeparator +  "lib" + FileSeparator),
                     new VaadinFileInfo( VAADIN_THEME_COMPILER_JAR, portalPath ),
                     new VaadinFileInfo( VAADIN_THEMES_JAR, portalPath ),
                     new VaadinFileInfo( VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath ),
@@ -87,7 +89,7 @@ public abstract class ControlPanelPortletUtil {
 
     public static  String getVaadinClientJarsDir(){
         // return ".../tomcat-{version}/webapps/ROOT/WEB-INF/vaadin-clients-jars/";
-        return getPortalWebDir() +"WEB-INF" + "//vaadin-clients-jars//";
+        return getPortalWebDir() +"WEB-INF" + FileSeparator + "vaadin-clients-jars" + FileSeparator;
     }
 
     public static File get6VersionVaadinJarLocation() {

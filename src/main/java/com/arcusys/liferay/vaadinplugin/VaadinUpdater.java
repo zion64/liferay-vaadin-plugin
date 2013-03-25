@@ -62,6 +62,9 @@ public class VaadinUpdater implements Runnable {
    private File backupDir = null;
    private String backupPath = null;
 
+   private  String fileSeparator = ControlPanelPortletUtil.FileSeparator;
+
+
     public void run() {
         File tmpDir = null;
         File vaadinZipFile;
@@ -124,7 +127,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-server.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts vaadinBootstrap.js which is needed by all Vaadin applications.
 */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR, "/vaadin-server/", vaadinResourcePath)) {
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_SERVER_JAR, fileSeparator + "vaadin-server" + fileSeparator, vaadinResourcePath)) {
                 return;
             }
 
@@ -132,7 +135,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-themes.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts all Vaadin themes.
              */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR, "/vaadin-themes/", vaadinResourcePath)) {
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_THEMES_JAR, fileSeparator + "vaadin-themes" + fileSeparator, vaadinResourcePath)) {
                 return;
             }
 
@@ -140,7 +143,7 @@ public class VaadinUpdater implements Runnable {
             Extract the VAADIN folder from vaadin-client-compiled.jar into liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/html/VAADIN.
             This extracts the default widget set.
             */
-            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILED_JAR, "/vaadin-client-compiled/", vaadinResourcePath)) {
+            if (extractVAADINFolder(zipDestinationPath, ControlPanelPortletUtil.VAADIN_CLIENT_COMPILED_JAR, fileSeparator + "vaadin-client-compiled" + fileSeparator, vaadinResourcePath)) {
                 return;
             }
 
@@ -175,7 +178,7 @@ public class VaadinUpdater implements Runnable {
         String vaadinResourcePath = ControlPanelPortletUtil.getVaadinResourceDir();
         File vaadinResource = new File(vaadinResourcePath);
         outputLog.log("Backup old vaadin resources : " + vaadinResourcePath + " to " + backupPath);
-        String backupreSourcesPath = backupDir.getPath() + "/resources";
+        String backupreSourcesPath = backupDir.getPath() + fileSeparator +  "resources";
         File backupreSourcesDir = new File(backupreSourcesPath);
         if (backupreSourcesDir.exists()) FileUtils.deleteDirectory(backupreSourcesDir);
         if(!backupreSourcesDir.mkdir()){
@@ -185,13 +188,13 @@ public class VaadinUpdater implements Runnable {
             FileUtils.copyDirectory(vaadinResource, backupreSourcesDir);
         }
 
+        String backupFilesPath = backupPath + fileSeparator;
+
         File vaadin6Version = ControlPanelPortletUtil.get6VersionVaadinJarLocation();
         if (vaadin6Version.exists()) {
             outputLog.log("Backup vaadin.jar : " + vaadin6Version.getAbsolutePath());
-            FileUtils.copyFile(vaadin6Version, backupDir);
+            replaceFile(vaadin6Version.getParent() + fileSeparator, backupFilesPath, vaadin6Version.getName());
         }
-
-        String backupFilesPath = backupPath + "/";
 
         Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
         StringBuffer sb = new StringBuffer();
@@ -255,7 +258,7 @@ public class VaadinUpdater implements Runnable {
 
     private String exctractZipFile(File vaadinZipFile, String tmpPath) throws IOException {
         byte[] buf = new byte[1024];
-        String zipDestinationPath = tmpPath + "/unzip/";
+        String zipDestinationPath = tmpPath +  fileSeparator +"unzip" + fileSeparator;
         File unzipDirectory = new File(zipDestinationPath);
         if (!unzipDirectory.mkdir()) {
             log.warn("Zip extract failed.");
@@ -306,7 +309,7 @@ public class VaadinUpdater implements Runnable {
     }
 
     private boolean extractVAADINFolder(String sourceDirPath, String jarName, String tmpFolderName, String destination) throws IOException {
-        String vaadinJarFilePath = sourceDirPath + "\\" + jarName;
+        String vaadinJarFilePath = sourceDirPath + fileSeparator + jarName;
         JarFile vaadinJar = new JarFile(vaadinJarFilePath);
         String vaadinExtractedPath = sourceDirPath + tmpFolderName;
         outputLog.log("Extracting " + jarName);
@@ -329,7 +332,7 @@ public class VaadinUpdater implements Runnable {
             vaadinJar.close();
         }
 
-        String vaadinExtractedVaadinPath = vaadinExtractedPath + "/VAADIN/";
+        String vaadinExtractedVaadinPath = vaadinExtractedPath + fileSeparator +  "VAADIN" + fileSeparator;
         File vaadinExtractedVaadin = new File(vaadinExtractedVaadinPath);
         if (!vaadinExtractedVaadin.exists()) {
             upgradeListener.updateFailed("Could not find " + vaadinExtractedVaadinPath);

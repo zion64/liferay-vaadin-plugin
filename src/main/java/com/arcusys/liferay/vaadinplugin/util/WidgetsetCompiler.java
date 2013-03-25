@@ -62,7 +62,7 @@ public class WidgetsetCompiler {
         }
 
         args.add("-classpath");
-        args.add(classpath.toString().replaceAll(" ", "\\ "));
+        args.add(classpath.toString().replaceAll(" ", ControlPanelPortletUtil.FileSeparator + " "));
 
 
 
@@ -184,7 +184,7 @@ public class WidgetsetCompiler {
      */
     private String getJava() {
         String javaHome = System.getenv("JAVA_HOME");
-        String path = javaHome + "/bin/java";
+        String path = javaHome + ControlPanelPortletUtil.FileSeparator + "bin" + ControlPanelPortletUtil.FileSeparator + "java";
 
         // Can't use isExecutable() for this check as it's Java 6.
         File file = new File(path);
