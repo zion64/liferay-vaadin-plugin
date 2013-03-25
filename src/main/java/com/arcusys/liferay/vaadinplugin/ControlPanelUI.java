@@ -245,8 +245,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
 
         Label newestVaadinVersionLabel = new Label();
         newestVaadinVersionLabel.setSizeUndefined();
-        newestVaadinVersionLabel.setValue("(newest stable version: "
-                + newestVersion + ")");
+        newestVaadinVersionLabel.setValue("(newest stable version: " + newestVersion + ")");
         layout.addComponent(newestVaadinVersionLabel);
 
         if (!version.equals(newestVersion)) {
@@ -631,11 +630,9 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
             layout.setSpacing(true);
             layout.setWidth("350px");
 
-            layout.addComponent(new Label(WARNING_UPGRADE_VAADIN_VERSION,
-                    ContentMode.HTML));
+            layout.addComponent(new Label(WARNING_UPGRADE_VAADIN_VERSION, ContentMode.HTML));
 
-            layout.addComponent(new Label(
-                    "After updating, you will need to redeploy all portlets using Vaadin. Otherwise, the portlets might fail randomly because of version conflicts."));
+            layout.addComponent(new Label( "After updating, you will need to redeploy all portlets using Vaadin. Otherwise, the portlets might fail randomly because of version conflicts."));
 
             List<Portlet> detectedVaadinPortlets = new ArrayList<Portlet>();
             List<Portlet> portlets = PortletLocalServiceUtil.getPortlets();
