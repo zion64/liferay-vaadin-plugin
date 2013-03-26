@@ -141,15 +141,19 @@ public abstract class ControlPanelPortletUtil {
      */
     public static String getPortalVaadinVersion() throws IOException {
         JarFile jarFile = null;
-
+        String version = null;
         try {
+            // Check Vaadin 7 version from manifest
             jarFile = new JarFile(getVaadinServerJarLocation());
-            // Check Vaadin version from manifest
-            String manifestVaadinVersion = getManifestVaadinVersion(jarFile);
-            if (manifestVaadinVersion != null) {
-                return manifestVaadinVersion;
+
+            version = getManifestVaadinVersion(jarFile);
+            if (version != null) {
+                return version;
             }
-            return null;
+
+        }catch(Exception e)
+        {
+            version = null;
         } finally {
             if (jarFile != null) {
                 try {
@@ -159,11 +163,39 @@ public abstract class ControlPanelPortletUtil {
                 }
             }
         }
+
+        try {
+            // Check Vaadin 6 version from manifest
+            jarFile = new JarFile(get6VersionVaadinJarLocation());
+            version = getManifestVaadin6Version(jarFile);
+            if (version != null) {
+                return version;
+            }
+
+        } catch (Exception ex){
+            version = null;
+        }
+        finally {
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException e) {
+                    log.warn(e);
+                }
+            }
+        }
+
+        return version;
     }
 
     private static String getManifestVaadinVersion(JarFile jarFile)
             throws IOException {
         return getManifestAttribute(jarFile, VAADIN_VERSION_MANIFEST_STRING);
+    }
+
+    private static String getManifestVaadin6Version(JarFile jarFile)
+            throws IOException {
+        return getManifestAttributeForVaadin6(jarFile, VAADIN_VERSION_MANIFEST_STRING);
     }
 
     private static String getManifestAttribute(JarFile jarFile, String versionAttribute) throws IOException {
@@ -174,6 +206,20 @@ public abstract class ControlPanelPortletUtil {
         Attributes attr = manifest.getMainAttributes();
         String bundleName = attr.getValue("Bundle-Name");
         if (bundleName != null && bundleName.toLowerCase().equals("vaadin-server")) {
+            return attr.getValue(versionAttribute);
+        }
+
+        return null;
+    }
+
+    private static String getManifestAttributeForVaadin6(JarFile jarFile, String versionAttribute) throws IOException {
+        Manifest manifest = jarFile.getManifest();
+        if (manifest == null) {
+            return null;
+        }
+        Attributes attr = manifest.getMainAttributes();
+        String bundleName = attr.getValue("Bundle-Name");
+        if (bundleName != null && bundleName.equals("Vaadin")) {
             return attr.getValue(versionAttribute);
         }
 
