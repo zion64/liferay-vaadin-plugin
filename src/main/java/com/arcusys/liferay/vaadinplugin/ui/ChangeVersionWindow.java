@@ -37,6 +37,7 @@ public class ChangeVersionWindow extends Window {
         private final VaadinReleaseType releaseType;
         private final DateTime releaseDate;
         private final String name;
+        private final DateTime startDate = new DateTime(2012, 10, 5, 11, 0, 0);
 
         public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl, DateTime releaseDate) {
             this.downloadUrl = downloadUrl;
@@ -69,12 +70,12 @@ public class ChangeVersionWindow extends Window {
         public boolean isSupported() {
             String[] versionParts = version.split("\\.");
             String majorVersion = versionParts[0];
-            if (!VAADIN_MAJOR_VERSION.equals(majorVersion)) {
-                // Other major versions than 7 not supported
-                return false;
-            }
 
-            if (version.contains("alpha")) return false;
+            // Other major versions than 7 not supported
+            if (!VAADIN_MAJOR_VERSION.equals(majorVersion)) return false;
+
+            //releases before 7.0.0.nightly-0ce6f77ab353c1bc1decc7f02203cd07a5ff5d27/ 13-Sep-2012 12:52 not supported
+            if (releaseDate.isBefore(startDate)) return false;
 
             return true;
         }
@@ -173,14 +174,8 @@ public class ChangeVersionWindow extends Window {
 
     private List<LinkParser.VersionData> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {
         String majorVerisonResponse = getResponseString(versionListUrl);
-//        ArrayList<VaadinVersion> versionsAndUrls = new ArrayList<VaadinVersion>();
 
         List<LinkParser.VersionData> versionsAndUrls = parser.getVaadinVersionsAndDates(majorVerisonResponse, majorVersion, versionListUrl);
-
-//        for(LinkParser.VersionData version: versionsList){
-//            String url = versionListUrl + version.getVersion()+ "/";
-//            versionsAndUrls.add(new LinkParser.VersionData(version.getVersion(), version.getDate(), url));
-//        }
 
         return versionsAndUrls;
     }
