@@ -233,8 +233,17 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         try {
             version = ControlPanelPortletUtil.getPortalVaadinVersion();
         } catch (IOException e) {
-            log.warn("Vaadin jar couldn't be read.", e);
+            log.warn("vaadin-server.jar couldn't be read.", e);
         }
+
+        if(version == null){
+        try {
+            version = ControlPanelPortletUtil.getPortalVaadin6Version();
+        } catch (IOException e) {
+            log.warn("vaadin.jar couldn't be read.", e);
+        }
+        }
+
         if (version == null) {
             version = "could not be determined";
         }
@@ -430,8 +439,10 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                         ) {
                             @Override
                             public void compilationFinished() {
-                                System.out.println("compilation finished");
+                                System.out.println("Compilation has been finished successfully");
                                 getUI().getSession().getLockInstance().lock();
+                                outputLog.log("Compilation has been finished successfully");
+
                                 try {
                                     setCompilationModeEnabled(false);
 
