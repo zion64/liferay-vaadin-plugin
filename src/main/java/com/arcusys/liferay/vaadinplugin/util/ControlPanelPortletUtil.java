@@ -140,20 +140,15 @@ public abstract class ControlPanelPortletUtil {
      *             If the portal's Vaadin jar cannot be read
      */
     public static String getPortalVaadinVersion() throws IOException {
-        JarFile jarFile = null;
-        String version = null;
+        JarFile jarFile = new JarFile(getVaadinServerJarLocation());
+
         try {
             // Check Vaadin 7 version from manifest
-            jarFile = new JarFile(getVaadinServerJarLocation());
-
-            version = getManifestVaadinVersion(jarFile);
-            if (version != null) {
-                return version;
+            String manifestVaadinVersion = getManifestVaadinVersion(jarFile);
+            if (manifestVaadinVersion != null) {
+                return manifestVaadinVersion;
             }
-
-        }catch(Exception e)
-        {
-            version = null;
+            return  null;
         } finally {
             if (jarFile != null) {
                 try {
@@ -163,19 +158,20 @@ public abstract class ControlPanelPortletUtil {
                 }
             }
         }
+    }
+
+    public static String getPortalVaadin6Version() throws IOException {
+
+        JarFile jarFile = new JarFile(get6VersionVaadinJarLocation());
 
         try {
             // Check Vaadin 6 version from manifest
-            jarFile = new JarFile(get6VersionVaadinJarLocation());
-            version = getManifestVaadin6Version(jarFile);
-            if (version != null) {
-                return version;
+            String manifestVaadinVersion = getManifestVaadin6Version(jarFile);
+            if (manifestVaadinVersion != null) {
+                return manifestVaadinVersion;
             }
-
-        } catch (Exception ex){
-            version = null;
-        }
-        finally {
+            return null;
+        }finally {
             if (jarFile != null) {
                 try {
                     jarFile.close();
@@ -184,8 +180,6 @@ public abstract class ControlPanelPortletUtil {
                 }
             }
         }
-
-        return version;
     }
 
     private static String getManifestVaadinVersion(JarFile jarFile)
