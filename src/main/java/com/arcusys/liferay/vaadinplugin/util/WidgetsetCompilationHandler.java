@@ -50,22 +50,19 @@ public class WidgetsetCompilationHandler implements Runnable {
 
             File compiledWidgetset = new File(tmpDir, widgetset);
             if (compiledWidgetset.exists() && compiledWidgetset.isDirectory()) {
-                String ws = ControlPanelPortletUtil.getWidgetsetDir()
-                        + widgetset;
+                String ws = ControlPanelPortletUtil.getWidgetsetDir() + widgetset;
                 WidgetsetUtil.rotateWidgetsetBackups(ws);
                 WidgetsetUtil.backupOldWidgetset(ws);
                 File destDir = new File(ws);
 
-                System.out.println("ws: " + ws);
-
-                outputLog.log("Copying widgetset from "
-                        + compiledWidgetset + " to " + destDir);
+                outputLog.log("Copying widgetset from " + compiledWidgetset + " to " + destDir);
 
                 System.out.println("Copying widgetset from " + compiledWidgetset + " to " + destDir);
 
                 FileUtils.copyDirectory(compiledWidgetset, destDir);
 
-                System.out.println("Copying done...");
+                outputLog.log("Copying done");
+                System.out.println("Copying done");
             }
 
         } catch (IOException e) {
