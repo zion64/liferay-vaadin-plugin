@@ -1,0 +1,24 @@
+
+Release Notes
+
+v1.0 rc1
+
+Widgetset compilation. Clients Vaadin jars needed for widgetset compilation (vaadin-client.jar, vaadin-client-compiler.jar) located in separated directory "../ROOT/WEB-INF/vaadin-clients-jars/".
+
+Change version. Approach to fetching Vaadin releases changed.
+
+Change version. Release list ordered by release date.
+
+Change version. First release has 05.10.2012 release date. All preceded releases have different jar names or directory structure.
+
+System file separator used in all paths.
+
+Liferay Vaadin plugin works in Liferay with Vaadin 6.* version.
+
+Liferay Vaadin plugin creates backups of all files and restores them if something wrong during update.
+
+
+
+
+
+
