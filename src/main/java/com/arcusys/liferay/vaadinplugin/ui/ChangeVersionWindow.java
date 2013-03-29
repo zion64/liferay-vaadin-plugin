@@ -31,7 +31,6 @@ public class ChangeVersionWindow extends Window {
         @Override
         public void run() {
             try {
-
                 VaadinVersionFetcher fetcher  = new VaadinVersionFetcher();
                 List<VaadinVersion> versionList = fetcher.fetchAllVersionList();
 
@@ -80,7 +79,6 @@ public class ChangeVersionWindow extends Window {
                     close();
                 }
             });
-
     private final Button cancelButton = new Button("Cancel",
             new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {

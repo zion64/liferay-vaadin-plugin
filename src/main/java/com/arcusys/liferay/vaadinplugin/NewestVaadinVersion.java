@@ -1,16 +1,9 @@
 package com.arcusys.liferay.vaadinplugin;
 
-import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
 import com.arcusys.liferay.vaadinplugin.util.VaadinVersion;
 import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
 
 public class NewestVaadinVersion {
     private final Log log = LogFactoryUtil.getLog(NewestVaadinVersion.class);
@@ -34,9 +27,6 @@ public class NewestVaadinVersion {
     }
 
     private void retrieveNewestVaadinVersionAndLocation() {
-//        URL newestVaadinVersionURL;
-//        InputStream inputStream = null;
-//        BufferedReader dataInputStream = null;
         String s;
         String version = "";
         String location = "";
@@ -44,27 +34,15 @@ public class NewestVaadinVersion {
         VaadinVersionFetcher versionFetcher = new VaadinVersionFetcher();
 
         try {
-           /* newestVaadinVersionURL = new URL(ControlPanelPortletUtil.LATEST_VAADIN_INFO);
-            inputStream = newestVaadinVersionURL.openStream();
-            dataInputStream = new BufferedReader(new InputStreamReader(
-                    inputStream));
-            if ((s = dataInputStream.readLine()) != null) {
-                version = s.trim();
-            }
-            if ((s = dataInputStream.readLine()) != null) {
-                location= s.trim();
-            }*/
-
             VaadinVersion latestVersion =  versionFetcher.fetchLatestReleaseVersion();
 
-            location = latestVersion.getDownloadUrl();
-            version = latestVersion.getVersion();
-
-
-//            if (!version.startsWith(maxMajorVersion)) {
-//                version = "Can't find latest " + maxMajorVersion + ".* version";
-//                location = "";
-//            }
+            if(latestVersion == null){
+                version = "unknown";
+                location = "";
+            }else{
+                location = latestVersion.getDownloadUrl();
+                version = latestVersion.getVersion();
+            }
 
         } catch (Exception e) {
             log.warn(e);
@@ -73,8 +51,6 @@ public class NewestVaadinVersion {
         } finally {
             newestVaadinVersion = version;
             newestVaadinVersionLocation = location;
-//            ControlPanelPortletUtil.close(dataInputStream);
-//            ControlPanelPortletUtil.close(inputStream);
         }
     }
 }

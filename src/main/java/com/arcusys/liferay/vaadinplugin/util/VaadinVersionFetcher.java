@@ -50,7 +50,6 @@ public class VaadinVersionFetcher {
                     for(LinkParser.VersionData version : majorVersions){
                         versions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
                     }
-
                     majorVersions = versions;
                 }
 

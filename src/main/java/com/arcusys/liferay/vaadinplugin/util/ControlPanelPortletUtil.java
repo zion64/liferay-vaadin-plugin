@@ -47,10 +47,6 @@ public abstract class ControlPanelPortletUtil {
     public static final String VAADIN_JAR = "vaadin.jar";
     public static final String VAADIN_ALL_ZIP = "vaadin-all.zip";
 
-    //public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/LATEST?source=liferay&version=@VERSION@";
-    public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/release/7.0/LATEST?source=liferay&version=@VERSION@";
-    public static final String ALL_VERSIONS_INFO = "http://vaadin.com/download/VERSIONS_ALL?source=liferay&version=@VERSION@";
-
     private static Collection<VaadinFileInfo> vaadinFiles = null;
 
     public static final String FileSeparator = File.separator;
