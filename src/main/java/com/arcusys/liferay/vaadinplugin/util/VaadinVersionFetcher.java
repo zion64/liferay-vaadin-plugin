@@ -17,7 +17,25 @@ import java.util.*;
  */
 public class VaadinVersionFetcher {
 
-    public  List<VaadinVersion> fetchVersionList(Collection<VaadinVersion.VaadinReleaseType> versiontypes) {
+    public  List<VaadinVersion> fetchAllVersionList() {
+        Collection<VaadinVersion.VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinVersion.VaadinReleaseType>();
+        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.release);
+        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.nightly);
+        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.prerelease);
+
+        return fetchVersionList(releaseTypesCollection);
+    }
+
+    public  VaadinVersion fetchLatestReleaseVersion() {
+        Collection<VaadinVersion.VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinVersion.VaadinReleaseType>();
+        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.release);
+
+        List<VaadinVersion> versions =  fetchVersionList(releaseTypesCollection);
+
+        return versions.get(versions.size() - 1);
+    }
+
+    private   List<VaadinVersion> fetchVersionList(Collection<VaadinVersion.VaadinReleaseType> versiontypes) {
         LinkParser parser = new LinkParser();
         List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
         for(VaadinVersion.VaadinReleaseType type : versiontypes){

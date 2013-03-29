@@ -32,14 +32,8 @@ public class ChangeVersionWindow extends Window {
         public void run() {
             try {
 
-                Collection<VaadinVersion.VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinVersion.VaadinReleaseType>();
-                releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.release);
-                releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.nightly);
-                releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.prerelease);
-
                 VaadinVersionFetcher fetcher  = new VaadinVersionFetcher();
-
-                List<VaadinVersion> versionList =fetcher.fetchVersionList(releaseTypesCollection);
+                List<VaadinVersion> versionList = fetcher.fetchAllVersionList();
 
                 getUI().getSession().getLockInstance().lock();
                     beanItemContainer.addAll(versionList);
@@ -57,69 +51,6 @@ public class ChangeVersionWindow extends Window {
                 versionFetch = null;
             }
         }
-
-   /* private List<VaadinVersion> fetchVersionList(Collection<VaadinReleaseType> versiontypes) {
-        LinkParser parser = new LinkParser();
-        List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
-        for(VaadinReleaseType type : versiontypes){
-        try {
-            String vaadinMajorVersionListUrl = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL + type + "/";
-            List<LinkParser.VersionData> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, VAADIN_MAJOR_VERSION);
-
-            List<LinkParser.VersionData> minorVersions = new ArrayList<LinkParser.VersionData>();
-
-            if(type == VaadinReleaseType.prerelease){
-                List<LinkParser.VersionData> versions = new ArrayList<LinkParser.VersionData>();
-                for(LinkParser.VersionData version : majorVersions){
-                    versions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
-                }
-
-                majorVersions = versions;
-            }
-
-            for(LinkParser.VersionData version : majorVersions){
-                minorVersions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
-            }
-
-            for(LinkParser.VersionData versionData : minorVersions){
-                String zipName = "vaadin-all-" + versionData.getVersion() + ".zip";
-                VaadinVersion vaadinVersion = new VaadinVersion(versionData.getVersion(), type,versionData.getUrl() + zipName, versionData.getDate());
-                if(vaadinVersion.isSupported()) vaadinVersions.add(vaadinVersion);
-            }
-        }
-        catch (Exception e)
-        {
-            Notification.show("Can't fetch " + type  + " versions", Notification.Type.ERROR_MESSAGE);
-        }
-        }
-
-        Collections.sort(vaadinVersions, new Comparator<VaadinVersion>(){
-            @Override
-            public int compare(VaadinVersion o1, VaadinVersion o2) {
-                if(o1 == null) return -1;
-                if(o2 == null) return 1;
-
-                String vers1 = o1.getVersion().substring(0,5);
-                String vers2 = o2.getVersion().substring(0,5);
-
-                if(vers1.compareTo(vers2) == 0){
-
-                if(o1.getReleaseDate() != null && o2.getReleaseDate() != null){
-                    return o1.getReleaseDate().compareTo(o2.getReleaseDate());
-                }
-                else {
-                    return o1.getVersion().compareTo(o2.getVersion());
-                }
-                }else
-                {
-                    return o1.getVersion().compareTo(o2.getVersion());
-                }
-
-            }
-        });
-        return vaadinVersions;
-    }*/
-
     };
 
     private final VerticalLayout layout = new VerticalLayout();
@@ -131,8 +62,7 @@ public class ChangeVersionWindow extends Window {
             VaadinVersion.VaadinReleaseType.prerelease, VaadinVersion.VaadinReleaseType.nightly));
 
     private final ProgressIndicator progressIndicator = new ProgressIndicator();
-    private final ComboBox versionSelection = new ComboBox("Select version",
-            beanItemContainer);
+    private final ComboBox versionSelection = new ComboBox("Select version", beanItemContainer);
 
     private final Button changeVersionButton = new Button("Change version",
             new Button.ClickListener() {
@@ -150,6 +80,7 @@ public class ChangeVersionWindow extends Window {
                     close();
                 }
             });
+
     private final Button cancelButton = new Button("Cancel",
             new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {
