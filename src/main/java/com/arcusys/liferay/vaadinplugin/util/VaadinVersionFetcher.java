@@ -97,9 +97,7 @@ public class VaadinVersionFetcher {
     private List<LinkParser.VersionData> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {
         String majorVerisonResponse = getResponseString(versionListUrl);
 
-        List<LinkParser.VersionData> versionsAndUrls = parser.getVaadinVersionsAndDates(majorVerisonResponse, majorVersion, versionListUrl);
-
-        return versionsAndUrls;
+        return  parser.getVaadinVersionsAndDates(majorVerisonResponse, majorVersion, versionListUrl);
     }
 
     private String getResponseString(String downloadUrl) throws IOException {

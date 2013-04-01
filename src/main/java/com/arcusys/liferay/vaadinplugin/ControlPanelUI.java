@@ -515,31 +515,6 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         }
     }
 
-    // old method
-    public void onRequestStart(PortletRequest request, PortletResponse response) {
-        if (includedDependencies == null || selectedAddons == null) {
-            PortletPreferences preferences = request.getPreferences();
-            String portletResource = ParamUtil.getString(request,
-                    "portletResource");
-            if (Validator.isNotNull(portletResource)) {
-                try {
-                    preferences = PortletPreferencesFactoryUtil
-                            .getPortletSetup(request, portletResource);
-                } catch (SystemException e) {
-                    log.warn(e);
-                } catch (PortalException e) {
-                    log.warn(e);
-                }
-            }
-            if (includedDependencies == null) {
-                loadAdditionalDependencies(preferences);
-            }
-            if (selectedAddons == null) {
-                loadSelectedAddons(preferences);
-            }
-        }
-    }
-
     private void loadAdditionalDependencies(PortletPreferences preferences) {
         if (includedDependencies == null) {
             includedDependencies = new ArrayList<File>();
@@ -599,7 +574,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                         done(true);
                     }
 
-                    private void done(boolean sucess) {
+                    private void done(boolean success) {
                         refreshVersionInfo();
                         // Stop polling
                         versionUpgradeProgressIndicator.setEnabled(false);
@@ -626,7 +601,6 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
         setButtonsEnabled(false);
 
         new Thread(vaadinUpdater).start();
-
     }
 
     private class WarningWindow extends Window {
