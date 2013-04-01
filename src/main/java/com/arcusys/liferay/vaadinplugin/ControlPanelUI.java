@@ -206,9 +206,7 @@ public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOut
                     return;
                 }
 
-                String downloadLocation = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL
-                        + newestVaadinVersion.getLocation() + "/" + ControlPanelPortletUtil.VAADIN_ALL_NAME + "-"
-                        + newestVaadinVersion.getVersion() + ".zip";
+                String downloadLocation = newestVaadinVersion.getLocation();
 
                 outputLog.log("Location for download: " + downloadLocation);
 
