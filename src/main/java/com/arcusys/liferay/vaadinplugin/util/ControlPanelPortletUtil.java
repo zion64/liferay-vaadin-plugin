@@ -31,20 +31,19 @@ public abstract class ControlPanelPortletUtil {
 
     private static final String VAADIN_VERSION_MANIFEST_STRING = "Bundle-Version";
     public static final String VAADIN_DOWNLOAD_URL = "http://vaadin.com/download/";
-    public static final String VAADIN_ALL_NAME = "vaadin-all";
     public static final String VAADIN_SERVER_JAR = "vaadin-server.jar";
     public static final String VAADIN_THEMES_JAR = "vaadin-themes.jar";
-    public static final String VAADIN_THEME_COMPILER_JAR = "vaadin-theme-compiler.jar";
+    private static final String VAADIN_THEME_COMPILER_JAR = "vaadin-theme-compiler.jar";
 
     public static final String VAADIN_CLIENT_COMPILED_JAR = "vaadin-client-compiled.jar";
-    public static final String VAADIN_CLIENT_COMPILER_JAR = "vaadin-client-compiler.jar";
-    public static final String VAADIN_CLIENT_JAR = "vaadin-client.jar";
-    public static final String VAADIN_SHARED_JAR = "vaadin-shared.jar";
-    public static final String VAADIN_SHARED_DEPS_JAR = "vaadin-shared-deps.jar";
-    public static final String JSOUP_JAR = "jsoup.jar";
-    public static final String ANT_JAR = "ant.jar";
+    private static final String VAADIN_CLIENT_COMPILER_JAR = "vaadin-client-compiler.jar";
+    private static final String VAADIN_CLIENT_JAR = "vaadin-client.jar";
+    private static final String VAADIN_SHARED_JAR = "vaadin-shared.jar";
+    private static final String VAADIN_SHARED_DEPS_JAR = "vaadin-shared-deps.jar";
+    private static final String JSOUP_JAR = "jsoup.jar";
+    private static final String ANT_JAR = "ant.jar";
+    private static final String VAADIN_JAR = "vaadin.jar";
 
-    public static final String VAADIN_JAR = "vaadin.jar";
     public static final String VAADIN_ALL_ZIP = "vaadin-all.zip";
 
     private static Collection<VaadinFileInfo> vaadinFiles = null;
