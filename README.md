@@ -1,4 +1,4 @@
-liferay-vaadin-plugin
+Liferay Vaadin Plugin
 =====================
 
 Usage
