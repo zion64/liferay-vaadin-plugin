@@ -5,20 +5,29 @@
 	<parent>
 		<groupId>com.arcusys</groupId>
 		<artifactId>arcusys-oss-project</artifactId>
-		<version>13.3-SNAPSHOT</version>
+		<version>13.3.1</version>
 	</parent>
-	<groupId>com.arcusys</groupId>
 	<artifactId>liferay-vaadin-plugin</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>Liferay Vaadin plugin</name>
+	<name>Liferay Vaadin Plugin</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>7.0.2</vaadin.version>
 		<vaadin-maven-plugin.version>7.0.1.a1</vaadin-maven-plugin.version>
 		<liferay.version>6.1.1</liferay.version>
+		<license.licenseName>apache_v2</license.licenseName>
 	</properties>
+
+	<inceptionYear>2013</inceptionYear>	
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
 	
 	<scm>
 		<connection>scm:git:https://github.com/arcusys/liferay-vaadin-plugin.git</connection>
@@ -98,6 +107,17 @@
 				<artifactId>jrebel-maven-plugin</artifactId>
 			</plugin>
 			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<roots>
+						<root>src/main/java</root>
+						<root>src/main/webapp/WEB-INF</root>
+					</roots>
+				</configuration>
+			</plugin>
+			
 			<!-- As we are doing "inplace" GWT compilation, ensure the widgetset -->
 			<!-- directory is cleaned properly -->
 			<plugin>
@@ -116,7 +136,7 @@
 					</filesets>
 				</configuration>
 			</plugin>
-            <plugin>
+			<plugin>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-maven-plugin</artifactId>
 				<version>${vaadin-maven-plugin.version}</version>
