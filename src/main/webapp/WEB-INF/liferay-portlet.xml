@@ -3,7 +3,7 @@
 
 <liferay-portlet-app>
 	<portlet>
-		<portlet-name>Liferay Vaadin plugin portlet</portlet-name>
+		<portlet-name>Vaadin Configuration</portlet-name>
 		<icon>/VAADIN/icon.png</icon>
 		<!-- Enable the Control Panel in Liferay Control Panel -->
 		<control-panel-entry-category>portal</control-panel-entry-category>
