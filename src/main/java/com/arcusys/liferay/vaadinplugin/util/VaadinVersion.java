@@ -1,13 +1,13 @@
 package com.arcusys.liferay.vaadinplugin.util;
 
-import org.joda.time.DateTime;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Igor.Borisov
  * Date: 29.03.13
  * Time: 11:47
  */
+
+import org.joda.time.DateTime;
 
 public final class VaadinVersion {
     private final String version;

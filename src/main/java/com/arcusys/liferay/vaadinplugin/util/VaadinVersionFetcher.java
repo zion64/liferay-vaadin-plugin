@@ -15,6 +15,7 @@ import java.util.*;
  * Date: 29.03.13
  * Time: 11:46
  */
+
 public class VaadinVersionFetcher {
 
     public  List<VaadinVersion> fetchAllVersionList() {

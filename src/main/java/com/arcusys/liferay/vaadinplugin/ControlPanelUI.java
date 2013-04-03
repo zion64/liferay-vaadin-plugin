@@ -53,7 +53,7 @@ import javax.portlet.PortletResponse;
 
 
 @SuppressWarnings("serial")
-public class ControlPanelUI extends UI// implements WidgetsetCompiler.CompileOutputConsumer//, PortletRequestListener
+public class ControlPanelUI extends UI
 {
     private static final String WARNING_UPGRADE_VAADIN_VERSION_NOT_FOUND = "Could not determine the newest Vaadin version. Please download it manually from "
             + ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL;

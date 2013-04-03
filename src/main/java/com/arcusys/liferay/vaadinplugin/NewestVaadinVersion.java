@@ -1,7 +1,5 @@
 package com.arcusys.liferay.vaadinplugin;
 
-import com.arcusys.liferay.vaadinplugin.util.VaadinVersion;
-import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
 /*
  * #%L
  * Liferay Vaadin Plugin
@@ -21,8 +19,13 @@ import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * #L%
+ *
+ * */
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.arcusys.liferay.vaadinplugin.util.VaadinVersion;
+import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
 
 public class NewestVaadinVersion {
     private final Log log = LogFactoryUtil.getLog(NewestVaadinVersion.class);
