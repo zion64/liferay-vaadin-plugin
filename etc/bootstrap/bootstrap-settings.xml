@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" 
+<settings xmlns="http://maven.apache.org/SETTINGS/1.1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
-		
-	<!-- mirrors>
+
+	<!--mirrors>
 		<mirror>
 			<id>public</id>
 			<name>Public Repositories</name>
 			<mirrorOf>central,external:*,!arcusys,!arcusys-releases,!arcusys-snapshots,!thirdparty-nonfree</mirrorOf>
 			<url>http://oss.arcusys.com/mvn/content/groups/public</url>
 		</mirror>
-	</mirrors -->
-    
-    <profiles>
-        <profile>
-            <id>arcusys-bootstrap</id>
-            <repositories>
-                <repository>
-                    <id>arcusys-public</id>
-                    <name>Arcusys Public Repositories</name>
-                    <releases><enabled>true</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </repository>
-            </repositories>
-        </profile>
-    </profiles>
-	
-    
+	</mirrors-->
+
+	<profiles>
+		<profile>
+			<id>arcusys-bootstrap</id>
+			<repositories>
+				<repository>
+					<id>arcusys-public</id>
+					<name>Arcusys Public Repositories</name>
+					<url>http://oss.arcusys.com/mvn/content/groups/public</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
 </settings>
