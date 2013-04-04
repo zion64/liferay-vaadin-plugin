@@ -103,10 +103,6 @@ public class LinkParser {
         private String version;
         private String url;
 
-        public VersionData(String version, DateTime date) {
-            this(version, date, "");
-        }
-
         public VersionData(String version, DateTime date, String url) {
             this.version = version;
             this.date = date;

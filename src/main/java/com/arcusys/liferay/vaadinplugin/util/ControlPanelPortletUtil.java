@@ -44,56 +44,49 @@ import com.vaadin.server.Constants;
  * User: Igor.Borisov
  * Date: 14.02.13
  * Time: 11:07
- * To change this template use File | Settings | File Templates.
  */
 public abstract class ControlPanelPortletUtil {
     private static Log log = LogFactoryUtil.getLog(ControlPanelPortletUtil.class);
 
     private static final String VAADIN_VERSION_MANIFEST_STRING = "Bundle-Version";
     public static final String VAADIN_DOWNLOAD_URL = "http://vaadin.com/download/";
-    public static final String VAADIN_ALL_NAME = "vaadin-all";
     public static final String VAADIN_SERVER_JAR = "vaadin-server.jar";
     public static final String VAADIN_THEMES_JAR = "vaadin-themes.jar";
-    public static final String VAADIN_THEME_COMPILER_JAR = "vaadin-theme-compiler.jar";
+    private static final String VAADIN_THEME_COMPILER_JAR = "vaadin-theme-compiler.jar";
 
     public static final String VAADIN_CLIENT_COMPILED_JAR = "vaadin-client-compiled.jar";
-    public static final String VAADIN_CLIENT_COMPILER_JAR = "vaadin-client-compiler.jar";
-    public static final String VAADIN_CLIENT_JAR = "vaadin-client.jar";
-    public static final String VAADIN_SHARED_JAR = "vaadin-shared.jar";
-    public static final String VAADIN_SHARED_DEPS_JAR = "vaadin-shared-deps.jar";
-    public static final String JSOUP_JAR = "jsoup.jar";
-    public static final String ANT_JAR = "ant.jar";
+    private static final String VAADIN_CLIENT_COMPILER_JAR = "vaadin-client-compiler.jar";
+    private static final String VAADIN_CLIENT_JAR = "vaadin-client.jar";
+    private static final String VAADIN_SHARED_JAR = "vaadin-shared.jar";
+    private static final String VAADIN_SHARED_DEPS_JAR = "vaadin-shared-deps.jar";
+    private static final String JSOUP_JAR = "jsoup.jar";
+    private static final String ANT_JAR = "ant.jar";
+    private static final String VAADIN_JAR = "vaadin.jar";
 
-    public static final String VAADIN_JAR = "vaadin.jar";
     public static final String VAADIN_ALL_ZIP = "vaadin-all.zip";
-
-    //public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/LATEST?source=liferay&version=@VERSION@";
-    public static final String LATEST_VAADIN_INFO = "http://vaadin.com/download/release/7.0/LATEST?source=liferay&version=@VERSION@";
-    public static final String ALL_VERSIONS_INFO = "http://vaadin.com/download/VERSIONS_ALL?source=liferay&version=@VERSION@";
 
     private static Collection<VaadinFileInfo> vaadinFiles = null;
 
     public static final String FileSeparator = File.separator;
 
-    public static  Collection<VaadinFileInfo> getVaadinFilesInfo(){
+    public static Collection<VaadinFileInfo> getVaadinFilesInfo() {
 
-        if(vaadinFiles == null)
-        {
-            String portalPath =  getPortalLibDir();
-            String vaadinClientJarsPath =  getVaadinClientJarsDir();
+        if (vaadinFiles == null) {
+            String portalPath = getPortalLibDir();
+            String vaadinClientJarsPath = getVaadinClientJarsDir();
 
             vaadinFiles = Arrays.asList(
-                    new VaadinFileInfo( VAADIN_SERVER_JAR, portalPath ),
-                    new VaadinFileInfo( VAADIN_SHARED_JAR, portalPath),
-                    new VaadinFileInfo( VAADIN_SHARED_DEPS_JAR, portalPath, FileSeparator +  "lib" + FileSeparator),
-                    new VaadinFileInfo( JSOUP_JAR, portalPath, FileSeparator +  "lib" + FileSeparator),
-                    new VaadinFileInfo( VAADIN_THEME_COMPILER_JAR, portalPath ),
-                    new VaadinFileInfo( VAADIN_THEMES_JAR, portalPath ),
-                    new VaadinFileInfo( VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath ),
-                    new VaadinFileInfo( VAADIN_CLIENT_JAR, vaadinClientJarsPath )
+                    new VaadinFileInfo(VAADIN_SERVER_JAR, portalPath),
+                    new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath),
+                    new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, FileSeparator + "lib" + FileSeparator),
+                    new VaadinFileInfo(JSOUP_JAR, portalPath, FileSeparator + "lib" + FileSeparator),
+                    new VaadinFileInfo(VAADIN_THEME_COMPILER_JAR, portalPath),
+                    new VaadinFileInfo(VAADIN_THEMES_JAR, portalPath),
+                    new VaadinFileInfo(VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath),
+                    new VaadinFileInfo(VAADIN_CLIENT_JAR, vaadinClientJarsPath)
             );
         }
-        return  vaadinFiles;
+        return vaadinFiles;
     }
 
 
@@ -102,14 +95,13 @@ public abstract class ControlPanelPortletUtil {
         return PortalUtil.getPortalLibDir();
     }
 
-    private static String getPortalWebDir()
-    {
+    private static String getPortalWebDir() {
         return PortalUtil.getPortalWebDir();
     }
 
-    public static  String getVaadinClientJarsDir(){
+    public static String getVaadinClientJarsDir() {
         // return ".../tomcat-{version}/webapps/ROOT/WEB-INF/vaadin-clients-jars/";
-        return getPortalWebDir() +"WEB-INF" + FileSeparator + "vaadin-clients-jars" + FileSeparator;
+        return getPortalWebDir() + "WEB-INF" + FileSeparator + "vaadin-clients-jars" + FileSeparator;
     }
 
     public static File get6VersionVaadinJarLocation() {
@@ -156,8 +148,7 @@ public abstract class ControlPanelPortletUtil {
      *
      * @return The version as a String or null if the required version could not
      *         be determined
-     * @throws java.io.IOException
-     *             If the portal's Vaadin jar cannot be read
+     * @throws java.io.IOException If the portal's Vaadin jar cannot be read
      */
     public static String getPortalVaadinVersion() throws IOException {
         JarFile jarFile = new JarFile(getVaadinServerJarLocation());
@@ -168,7 +159,7 @@ public abstract class ControlPanelPortletUtil {
             if (manifestVaadinVersion != null) {
                 return manifestVaadinVersion;
             }
-            return  null;
+            return null;
         } finally {
             if (jarFile != null) {
                 try {
@@ -191,7 +182,7 @@ public abstract class ControlPanelPortletUtil {
                 return manifestVaadinVersion;
             }
             return null;
-        }finally {
+        } finally {
             if (jarFile != null) {
                 try {
                     jarFile.close();
@@ -292,8 +283,7 @@ public abstract class ControlPanelPortletUtil {
         URLConnection conn = url.openConnection();
         conn.setConnectTimeout(10000);
         InputStream is = conn.getInputStream();
-        FileOutputStream out = new FileOutputStream(new File(targetDir,
-                targetFilename));
+        FileOutputStream out = new FileOutputStream(new File(targetDir, targetFilename));
         IOUtils.copy(is, out);
         close(out);
         close(is);
