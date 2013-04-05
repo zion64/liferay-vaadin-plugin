@@ -1,5 +1,5 @@
-Liferay Vaadin Plugin
-=====================
+Liferay Control Panel Plugin for Vaadin
+=======================================
 
 Usage
 -----
