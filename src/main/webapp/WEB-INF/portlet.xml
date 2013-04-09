@@ -31,6 +31,7 @@
 		<init-param>
 			<name>widgetset</name>
 			<value>com.arcusys.liferay.vaadinplugin.widgetset.ControlPanelWidgetSet</value>
+            <!--<value>com.vaadin.portal.PortalDefaultWidgetSet</value>-->
 		</init-param>
 		<init-param>
 			<name>UI</name>
