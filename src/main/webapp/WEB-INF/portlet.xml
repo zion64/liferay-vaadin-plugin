@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  #%L
+  Liferay Vaadin Plugin
+  %%
+  Copyright (C) 2013 Arcusys Ltd.
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+
 <portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 	<portlet>
-		<portlet-name>Liferay Vaadin plugin portlet</portlet-name>
-		<display-name>Liferay Vaadin plugin</display-name>
+		<portlet-name>Vaadin Configuration</portlet-name>
+		<display-name>Vaadin Configuration</display-name>
 
 		<portlet-class>com.arcusys.liferay.vaadinplugin.ControlPanelPortlet</portlet-class>
 
 		<init-param>
 			<name>widgetset</name>
 			<value>com.arcusys.liferay.vaadinplugin.widgetset.ControlPanelWidgetSet</value>
+            <!--<value>com.vaadin.portal.PortalDefaultWidgetSet</value>-->
 		</init-param>
 		<init-param>
 			<name>UI</name>
@@ -22,8 +43,8 @@
 		</supports>
 
 		<portlet-info>
-			<title>Liferay Vaadin plugin</title>
-			<short-title>Liferay Vaadin plugin</short-title>
+			<title>Vaadin Configuration</title>
+			<short-title>Vaadin</short-title>
 		</portlet-info>
 
 		<security-role-ref>
