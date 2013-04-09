@@ -699,13 +699,23 @@ public class ControlPanelUI extends UI
         }
 
         private boolean isVaadinPortlet(Portlet portlet) {
-            String portletClass = portlet.getPortletClass();
-            if (portletClass.startsWith(
-                    "com.vaadin.terminal.gwt.server")) {
-                return true;
-            }
+            if(portlet == null) return false;
+
+            if (isVaadin6Portlet(portlet)) return true;
+            if (isVaadin7Portlet(portlet)) return true;
+
             Map<String, String> initParams = portlet.getInitParams();
             return initParams.containsKey("application");
+        }
+
+        private boolean isVaadin6Portlet(Portlet portlet) {
+            String portletClass = portlet.getPortletClass();
+             return  portletClass.startsWith("com.vaadin.terminal.gwt.server");
+        }
+
+        private boolean isVaadin7Portlet(Portlet portlet) {
+            String portletClass = portlet.getPortletClass();
+            return portletClass.startsWith("com.vaadin.server.VaadinPortlet");
         }
     }
 
