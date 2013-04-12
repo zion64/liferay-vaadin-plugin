@@ -95,7 +95,7 @@ public class ControlPanelUI extends UI
 
     private Button compileWidgetsetButton;
 
-    private static Log log = LogFactoryUtil.getLog(ControlPanelUI.class);
+    private static final Log log = LogFactoryUtil.getLog(ControlPanelUI.class);
 
     private WidgetsetCompilationHandler compiler;
 
@@ -108,8 +108,7 @@ public class ControlPanelUI extends UI
     private VaadinUpdater vaadinUpdater;
     private ILog outputLog;
 
-
-    Button detailsButton;
+    private Button detailsButton;
 
     @Override
     protected void init(final VaadinRequest request) {
@@ -647,65 +646,6 @@ public class ControlPanelUI extends UI
 
         new Thread(vaadinUpdater).start();
     }
-
-  /*  private class DetailsWindow extends Window{
-        public DetailsWindow(){
-            super("Vaadin components info");
-            setModal(true);
-            setContent(createVaadinDetails());
-
-        }
-
-        private Layout createVaadinDetails() {
-
-            Layout vaadinDetailLayout = new VerticalLayout();
-            vaadinDetailLayout.setWidth("900px");
-
-            VerticalLayout vaadinDetails = new VerticalLayout();
-            vaadinDetails.setMargin(new MarginInfo(true, true, false, true));
-
-            Collection<VaadinFileInfo> fileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
-
-            for(VaadinFileInfo info: fileInfos){
-                VerticalLayout infoLayout = new VerticalLayout();
-                infoLayout.setCaption(info.getName());
-
-                infoLayout.setMargin(new MarginInfo(false, true, true, false));
-
-                Layout versionLayout = new HorizontalLayout();
-                versionLayout.setSizeUndefined();
-                versionLayout.addComponent(new Label("Version: "));
-                String vaadinJarVersion;
-                try{
-                    vaadinJarVersion = ControlPanelPortletUtil.getPortalVaadinJarVersion(info.getPlace() + ControlPanelPortletUtil.FileSeparator + info.getName() );
-                }catch (Exception ex)
-                {
-                    vaadinJarVersion= "";
-                    log.warn("Version for " +vaadinJarVersion + " couldn't be read.", ex);
-                }
-
-                versionLayout.addComponent(new Label(vaadinJarVersion));
-
-                infoLayout.addComponent(versionLayout);
-
-                Layout pathLayout = new HorizontalLayout();
-
-                pathLayout.setSizeUndefined();
-                pathLayout.addComponent(new Label("Path: "));
-                String path = info.getPlace();
-                pathLayout.addComponent(new Label(path));
-
-                infoLayout.addComponent(pathLayout);
-
-
-                vaadinDetails.addComponent(infoLayout);
-            }
-
-            vaadinDetailLayout.addComponent(vaadinDetails);
-            return vaadinDetailLayout ;
-        }
-    }
-*/
 
     private class WarningWindow extends Window {
 

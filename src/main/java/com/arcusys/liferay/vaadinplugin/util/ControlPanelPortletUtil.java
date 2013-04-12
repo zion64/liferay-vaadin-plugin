@@ -46,7 +46,7 @@ import com.vaadin.server.Constants;
  * Time: 11:07
  */
 public abstract class ControlPanelPortletUtil {
-    private static Log log = LogFactoryUtil.getLog(ControlPanelPortletUtil.class);
+    private static final Log log = LogFactoryUtil.getLog(ControlPanelPortletUtil.class);
 
     private static final String VAADIN_VERSION_MANIFEST_STRING = "Bundle-Version";
     public static final String VAADIN_DOWNLOAD_URL = "http://vaadin.com/download/";

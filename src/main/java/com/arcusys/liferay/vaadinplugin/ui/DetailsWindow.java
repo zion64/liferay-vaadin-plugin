@@ -20,10 +20,8 @@ package com.arcusys.liferay.vaadinplugin.ui;
  * #L%
  */
 
-
 import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
 import com.arcusys.liferay.vaadinplugin.util.VaadinFileInfo;
-import com.arcusys.liferay.vaadinplugin.util.VaadinVersion;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.vaadin.shared.ui.MarginInfo;
@@ -42,13 +40,12 @@ import java.util.List;
  */
 public class DetailsWindow extends Window {
 
-    private static Log log = LogFactoryUtil.getLog(DetailsWindow.class);
+    private static final Log log = LogFactoryUtil.getLog(DetailsWindow.class);
 
     public DetailsWindow(){
         super("Vaadin components info");
         setModal(true);
         setContent(createVaadinDetails());
-
     }
 
     private Layout createVaadinDetails() {
@@ -101,7 +98,6 @@ public class DetailsWindow extends Window {
             pathLayout.addComponent(new Label(path));
 
             infoLayout.addComponent(pathLayout);
-
 
             vaadinDetails.addComponent(infoLayout);
         }

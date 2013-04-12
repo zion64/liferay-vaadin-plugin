@@ -38,7 +38,7 @@ public class WidgetsetCompiler {
 
     private Process process;
     private boolean controlledTermination;
-    private ILog outptLog;
+    private final ILog outptLog;
 
     public WidgetsetCompiler(ILog outptLog)
     {
