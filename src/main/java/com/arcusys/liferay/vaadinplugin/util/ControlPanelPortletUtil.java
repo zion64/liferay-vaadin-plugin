@@ -76,14 +76,14 @@ public abstract class ControlPanelPortletUtil {
             String vaadinClientJarsPath = getVaadinClientJarsDir();
 
             vaadinFiles = Arrays.asList(
-                    new VaadinFileInfo(VAADIN_SERVER_JAR, portalPath),
-                    new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath),
-                    new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, FileSeparator + "lib" + FileSeparator),
-                    new VaadinFileInfo(JSOUP_JAR, portalPath, FileSeparator + "lib" + FileSeparator),
-                    new VaadinFileInfo(VAADIN_THEME_COMPILER_JAR, portalPath),
-                    new VaadinFileInfo(VAADIN_THEMES_JAR, portalPath),
-                    new VaadinFileInfo(VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath),
-                    new VaadinFileInfo(VAADIN_CLIENT_JAR, vaadinClientJarsPath)
+                    new VaadinFileInfo(VAADIN_SERVER_JAR, portalPath, 100),
+                    new VaadinFileInfo(VAADIN_CLIENT_JAR, vaadinClientJarsPath, 200),
+                    new VaadinFileInfo(VAADIN_THEMES_JAR,  portalPath, 300),
+                    new VaadinFileInfo(VAADIN_THEME_COMPILER_JAR, portalPath, 400),
+                    new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath, 500),
+                    new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, 600, FileSeparator + "lib" + FileSeparator),
+                    new VaadinFileInfo(VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath, 700),
+                    new VaadinFileInfo(JSOUP_JAR, portalPath, 800, FileSeparator + "lib" + FileSeparator)
             );
         }
         return vaadinFiles;
@@ -151,16 +151,25 @@ public abstract class ControlPanelPortletUtil {
      * @throws java.io.IOException If the portal's Vaadin jar cannot be read
      */
     public static String getPortalVaadinVersion() throws IOException {
-        JarFile jarFile = new JarFile(getVaadinServerJarLocation());
 
+        return getPortalVaadinJarVersion(getVaadinServerJarLocation().getAbsolutePath());
+    }
+
+    public static String getPortalVaadinJarVersion(String jarPath) throws IOException {
+        JarFile jarFile = new JarFile(jarPath);
         try {
+
             // Check Vaadin 7 version from manifest
             String manifestVaadinVersion = getManifestVaadinVersion(jarFile);
             if (manifestVaadinVersion != null) {
                 return manifestVaadinVersion;
             }
             return null;
-        } finally {
+        }
+        catch (Exception ex){
+            return null;
+        }
+        finally {
             if (jarFile != null) {
                 try {
                     jarFile.close();
@@ -210,7 +219,7 @@ public abstract class ControlPanelPortletUtil {
         }
         Attributes attr = manifest.getMainAttributes();
         String bundleName = attr.getValue("Bundle-Name");
-        if (bundleName != null && bundleName.toLowerCase().equals("vaadin-server")) {
+        if (bundleName != null) {
             return attr.getValue(versionAttribute);
         }
 

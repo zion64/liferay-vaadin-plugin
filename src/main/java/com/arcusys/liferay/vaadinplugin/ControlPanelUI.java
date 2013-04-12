@@ -22,6 +22,7 @@ package com.arcusys.liferay.vaadinplugin;
  */
 
 import com.arcusys.liferay.vaadinplugin.ui.ChangeVersionWindow;
+import com.arcusys.liferay.vaadinplugin.ui.DetailsWindow;
 import com.arcusys.liferay.vaadinplugin.util.*;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -34,6 +35,7 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
@@ -106,6 +108,9 @@ public class ControlPanelUI extends UI
     private VaadinUpdater vaadinUpdater;
     private ILog outputLog;
 
+
+    Button detailsButton;
+
     @Override
     protected void init(final VaadinRequest request) {
         //checkResources();
@@ -150,8 +155,12 @@ public class ControlPanelUI extends UI
         updateVaadinVersionButton = createUpdateVaadinVersionButton();
 
         String vaadinNewestVersion = newestVaadinVersion.getVersion();
-        vaadinVersionLayout = createVaadinVersionLayout(vaadinNewestVersion, changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator);
+        //add details
+        detailsButton = createDetailsButton();
+
+        vaadinVersionLayout = createVaadinVersionLayout(vaadinNewestVersion, changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton );
         settingsLayout.addComponent(vaadinVersionLayout);
+
 
         activeWidgetsetLabel = createActiveWidgetsetLabel();
         settingsLayout.addComponent(activeWidgetsetLabel);
@@ -192,6 +201,8 @@ public class ControlPanelUI extends UI
         addonsNotFoundLabel = createAddonsNotFoundLabel();
     }
 
+
+
     private ProgressIndicator createProgressIndicator() {
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setIndeterminate(true);
@@ -207,6 +218,17 @@ public class ControlPanelUI extends UI
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 addWindow(new ChangeVersionWindow());
+            }
+        });
+        return button;
+    }
+
+    private Button createDetailsButton() {
+        Button button = new Button("Details");
+        button.setStyleName(BaseTheme.BUTTON_LINK);
+        button.addClickListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                addWindow(new DetailsWindow());
             }
         });
         return button;
@@ -241,7 +263,7 @@ public class ControlPanelUI extends UI
         return button;
     }
 
-    private HorizontalLayout createVaadinVersionLayout(String newestVersion, Button changeVersionButton, Button updateVaadinVersionButton, ProgressIndicator versionUpgradeProgressIndicator) {
+    private HorizontalLayout createVaadinVersionLayout(String newestVersion, Button changeVersionButton, Button updateVaadinVersionButton, ProgressIndicator versionUpgradeProgressIndicator,Button detailsButton) {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setCaption("Vaadin Jar Version");
@@ -268,6 +290,8 @@ public class ControlPanelUI extends UI
         }
         vaadinVersionLabel.setValue(version);
         layout.addComponent(vaadinVersionLabel);
+
+        layout.addComponent(detailsButton);
 
         layout.addComponent(changeVersionButton);
 
@@ -624,6 +648,65 @@ public class ControlPanelUI extends UI
         new Thread(vaadinUpdater).start();
     }
 
+  /*  private class DetailsWindow extends Window{
+        public DetailsWindow(){
+            super("Vaadin components info");
+            setModal(true);
+            setContent(createVaadinDetails());
+
+        }
+
+        private Layout createVaadinDetails() {
+
+            Layout vaadinDetailLayout = new VerticalLayout();
+            vaadinDetailLayout.setWidth("900px");
+
+            VerticalLayout vaadinDetails = new VerticalLayout();
+            vaadinDetails.setMargin(new MarginInfo(true, true, false, true));
+
+            Collection<VaadinFileInfo> fileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+
+            for(VaadinFileInfo info: fileInfos){
+                VerticalLayout infoLayout = new VerticalLayout();
+                infoLayout.setCaption(info.getName());
+
+                infoLayout.setMargin(new MarginInfo(false, true, true, false));
+
+                Layout versionLayout = new HorizontalLayout();
+                versionLayout.setSizeUndefined();
+                versionLayout.addComponent(new Label("Version: "));
+                String vaadinJarVersion;
+                try{
+                    vaadinJarVersion = ControlPanelPortletUtil.getPortalVaadinJarVersion(info.getPlace() + ControlPanelPortletUtil.FileSeparator + info.getName() );
+                }catch (Exception ex)
+                {
+                    vaadinJarVersion= "";
+                    log.warn("Version for " +vaadinJarVersion + " couldn't be read.", ex);
+                }
+
+                versionLayout.addComponent(new Label(vaadinJarVersion));
+
+                infoLayout.addComponent(versionLayout);
+
+                Layout pathLayout = new HorizontalLayout();
+
+                pathLayout.setSizeUndefined();
+                pathLayout.addComponent(new Label("Path: "));
+                String path = info.getPlace();
+                pathLayout.addComponent(new Label(path));
+
+                infoLayout.addComponent(pathLayout);
+
+
+                vaadinDetails.addComponent(infoLayout);
+            }
+
+            vaadinDetailLayout.addComponent(vaadinDetails);
+            return vaadinDetailLayout ;
+        }
+    }
+*/
+
     private class WarningWindow extends Window {
 
         public WarningWindow(final String downloadUrl) {
@@ -724,7 +807,7 @@ public class ControlPanelUI extends UI
     }
 
     private void refreshVersionInfo() {
-        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestVaadinVersion.getVersion(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator);
+        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestVaadinVersion.getVersion(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton);
         settingsLayout.replaceComponent(vaadinVersionLayout, newVersionLayout);
 
         vaadinVersionLayout = newVersionLayout;
