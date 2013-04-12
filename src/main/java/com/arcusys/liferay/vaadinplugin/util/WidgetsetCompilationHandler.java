@@ -34,13 +34,13 @@ import java.util.Set;
 //import com.arcusys.vaadin.controlpanel.util.WidgetsetCompiler.CompileOutputConsumer;
 
 public class WidgetsetCompilationHandler implements Runnable {
-    private static Log log = LogFactoryUtil.getLog(WidgetsetCompilationHandler.class);
+    private static final Log log = LogFactoryUtil.getLog(WidgetsetCompilationHandler.class);
 
     private WidgetsetCompiler compiler;
 
-    private String widgetset;
-    private List<VaadinAddonInfo> includeAddons;
-    private List<File> additionalDependencies;
+    private final String widgetset;
+    private final List<VaadinAddonInfo> includeAddons;
+    private final List<File> additionalDependencies;
 
     private ILog outputLog;
 
