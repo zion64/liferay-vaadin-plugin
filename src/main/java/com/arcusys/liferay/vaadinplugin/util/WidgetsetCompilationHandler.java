@@ -58,10 +58,7 @@ public class WidgetsetCompilationHandler implements Runnable {
 
             WidgetsetUtil.createWidgetset(tmpDir, widgetset, getIncludeWidgetsets());
 
-            compiler = new WidgetsetCompiler(outputLog);
-            compiler.setWidgetset(widgetset);
-            compiler.setOutputDir(tmpDir.getAbsolutePath());
-            compiler.setClasspathEntries(getClasspathEntries(tmpDir));
+            compiler = new WidgetsetCompiler(outputLog, widgetset, tmpDir.getAbsolutePath(), getClasspathEntries(tmpDir) );
 
             try {
                 compiler.compileWidgetset();

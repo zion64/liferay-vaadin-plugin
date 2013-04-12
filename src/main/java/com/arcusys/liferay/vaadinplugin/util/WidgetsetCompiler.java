@@ -38,11 +38,14 @@ public class WidgetsetCompiler {
 
     private Process process;
     private boolean controlledTermination;
-    private final ILog outptLog;
+    private final ILog outputLog;
 
-    public WidgetsetCompiler(ILog outptLog)
+    public WidgetsetCompiler(ILog outputLog, String widgetset, String outputDir, List<File> classpathEntries)
     {
-        this.outptLog = outptLog;
+        this.outputLog = outputLog;
+        this.widgetset = widgetset;
+        this.outputDir = outputDir;
+        this.classpathEntries = classpathEntries;
     }
 
     public void compileWidgetset() throws IOException, InterruptedException {
@@ -59,7 +62,7 @@ public class WidgetsetCompiler {
 
         if( someNotExists) {
             System.out.println(nonExistedFiles.toString());
-            outptLog.log(nonExistedFiles.toString());
+            outputLog.log(nonExistedFiles.toString());
             terminate();
         }
 
@@ -136,7 +139,7 @@ public class WidgetsetCompiler {
 
         process = new ProcessBuilder(argsStr).start();
 
-        if (outptLog != null) {
+        if (outputLog != null) {
             ExecutorService executor = Executors.newFixedThreadPool(2);
             executor.execute(new Runnable() {
                 public void run() {
@@ -146,7 +149,7 @@ public class WidgetsetCompiler {
                         String s = null;
                         while ((s = stdInput.readLine()) != null) {
                             System.out.println(s);
-                            outptLog.log(s);
+                            outputLog.log(s);
                         }
                     } catch (IOException e) {
                     }
@@ -161,7 +164,7 @@ public class WidgetsetCompiler {
                         String s = null;
                         while ((s = stdError.readLine()) != null) {
                             System.out.println(s);
-                            outptLog.log(s);
+                            outputLog.log(s);
                         }
                     } catch (IOException e) {
                     }
@@ -171,27 +174,15 @@ public class WidgetsetCompiler {
 
         process.waitFor();
 
-        if (process.exitValue() != 0 && outptLog != null
+        if (process.exitValue() != 0 && outputLog != null
                 && !controlledTermination) {
-            outptLog.log("ERROR: Compilation ended due to an error.");
+            outputLog.log("ERROR: Compilation ended due to an error.");
         }
     }
 
     public void terminate() {
         controlledTermination = true;
         process.destroy();
-    }
-
-    public void setWidgetset(String widgetset) {
-        this.widgetset = widgetset;
-    }
-
-    public void setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
-    }
-
-    public void setClasspathEntries(List<File> classpathEntries) {
-        this.classpathEntries = new ArrayList<File>(classpathEntries);
     }
 
     /**
