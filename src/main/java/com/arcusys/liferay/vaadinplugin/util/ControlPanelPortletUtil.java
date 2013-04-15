@@ -62,6 +62,8 @@ public abstract class ControlPanelPortletUtil {
     private static final String JSOUP_JAR = "jsoup.jar";
     private static final String ANT_JAR = "ant.jar";
     private static final String VAADIN_JAR = "vaadin.jar";
+    private static final String VALIDATON_API = "validation-api.GA.jar";
+    private static final String VALIDATON_API_SOURCES = "validation-api.GA-sources.jar";
 
     public static final String VAADIN_ALL_ZIP = "vaadin-all.zip";
 
@@ -83,12 +85,13 @@ public abstract class ControlPanelPortletUtil {
                     new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath, 500),
                     new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, 600, FileSeparator + "lib" + FileSeparator),
                     new VaadinFileInfo(VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath, 700),
-                    new VaadinFileInfo(JSOUP_JAR, portalPath, 800, FileSeparator + "lib" + FileSeparator)
+                    new VaadinFileInfo(JSOUP_JAR, portalPath, 800, FileSeparator + "lib" + FileSeparator),
+                    new VaadinFileInfo(VALIDATON_API, portalPath, 900, FileSeparator + "lib" + FileSeparator),
+                    new VaadinFileInfo(VALIDATON_API_SOURCES, portalPath, 1000, FileSeparator + "lib" + FileSeparator)
             );
         }
         return vaadinFiles;
     }
-
 
     public static String getPortalLibDir() {
         // return ".../tomcat-6.0.29/webapps/ROOT/WEB-INF/lib/";
