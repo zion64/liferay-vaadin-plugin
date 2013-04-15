@@ -365,6 +365,6 @@ public class VaadinUpdater implements Runnable {
     }
 
     private String getFileNameWithoutVersion(String fileName) {
-        return fileName.replaceAll("-[0-9.]+.*", ".jar");
+        return fileName.replaceAll("-(\\d\\.)+", ".");
     }
 }
