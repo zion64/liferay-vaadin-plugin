@@ -121,6 +121,12 @@ public class WidgetsetCompilationHandler implements Runnable {
         // The ant.jar is located in the portal lib dir
         classpathEntries.add(ControlPanelPortletUtil.getAntJarLocation());
 
+        // The validation-api.GA.jar is located in the portal lib dir
+        classpathEntries.add(ControlPanelPortletUtil.getValidationApi());
+
+        // The validation-api.GA-sources.jar is located in the portal lib dir
+        classpathEntries.add(ControlPanelPortletUtil.getValidationApiSources());
+
         for (VaadinAddonInfo addon : includeAddons) {
             classpathEntries.add(addon.getJarFile());
         }

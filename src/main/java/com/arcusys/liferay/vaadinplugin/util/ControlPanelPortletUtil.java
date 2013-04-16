@@ -146,6 +146,18 @@ public abstract class ControlPanelPortletUtil {
         return new File(portalLibDir, ANT_JAR);
     }
 
+    public static File getValidationApi() {
+        // return ".../tomcat-{version}/webapps/ROOT/WEB-INF/lib/";
+        File portalLibDir = new File(getPortalLibDir());
+        return new File(portalLibDir, VALIDATON_API);
+    }
+
+    public static File getValidationApiSources() {
+        // return ".../tomcat-{version}/webapps/ROOT/WEB-INF/lib/";
+        File portalLibDir = new File(getPortalLibDir());
+        return new File(portalLibDir, VALIDATON_API_SOURCES);
+    }
+
     /**
      * Returns the Vaadin version for the Vaadin jar used in the portal.
      *
