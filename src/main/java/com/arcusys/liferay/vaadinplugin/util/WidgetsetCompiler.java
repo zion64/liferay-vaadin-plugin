@@ -76,6 +76,7 @@ public class WidgetsetCompiler {
 
         args.add("-Djava.awt.headless=true");
         args.add("-Dgwt.nowarn.legacy.tools");
+        args.add("-Dgwt.usearchives=false");
         args.add("-Xss8M");
         args.add("-Xmx512M");
         args.add("-XX:MaxPermSize=512M");
@@ -86,8 +87,6 @@ public class WidgetsetCompiler {
 
         args.add("-classpath");
         args.add(classpath.toString().replaceAll(" ", ControlPanelPortletUtil.FileSeparator + " "));
-
-
 
         String compilerClass = "com.google.gwt.dev.Compiler";
         args.add(compilerClass);
