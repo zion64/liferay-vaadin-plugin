@@ -51,6 +51,8 @@ public class WidgetsetCompiler {
     public void compileWidgetset() throws IOException, InterruptedException {
         String classpathSeparator = System.getProperty("path.separator");
 
+        WidgetsetUtil.removeGwtUnitCachePath();
+
         boolean someNotExists = false;
         StringBuilder nonExistedFiles = new StringBuilder("ERROR: Can't found files: ");
         for (File classpathEntry : classpathEntries) {

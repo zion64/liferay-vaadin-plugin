@@ -184,6 +184,15 @@ public abstract class WidgetsetUtil {
         return temp;
     }
 
+public static String removeGwtUnitCachePath() throws IOException {
+
+    String unitCachePath = FileUtils.getTempDirectoryPath() + File.separator + "gwt-unitCache";
+    File unitCacheDirectory = new File(unitCachePath);
+    if(unitCacheDirectory.exists()){
+       FileUtils.deleteDirectory(unitCacheDirectory);
+    }
+    return  unitCachePath;
+}
 
     public static void backupOldWidgetset(String originalWidgetset)
             throws IOException {
