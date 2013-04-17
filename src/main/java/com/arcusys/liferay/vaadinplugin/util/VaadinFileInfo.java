@@ -30,31 +30,23 @@ public class VaadinFileInfo {
     private final String name;
     private final String place;
     private final String innerSourcePath;
+    private final Integer orderPriority;
 
-    public VaadinFileInfo(String name, String place)
+    public VaadinFileInfo(String name, String place, int orderPriority)
     {
-        this(name, place, "");
+        this(name, place, orderPriority, "");
     }
 
-    public VaadinFileInfo(String name, String place, String innerSourcePath)
+    public VaadinFileInfo(String name, String place, int orderPriority, String innerSourcePath)
     {
         this.name = name;
         this.place = place;
         this.innerSourcePath = innerSourcePath;
+        this.orderPriority = orderPriority;
     }
 
-    public String getName()
-    {
-        return  name;
-    }
-
-    public String getPlace()
-    {
-        return  place;
-    }
-
-    public String getInnerSourcePath()
-    {
-        return  innerSourcePath;
-    }
+    public String getName() { return  name; }
+    public String getPlace() { return  place; }
+    public String getInnerSourcePath(){  return  innerSourcePath;}
+    public Integer getOrderPriority(){  return  orderPriority;}
 }

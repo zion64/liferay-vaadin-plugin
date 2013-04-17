@@ -1,0 +1,4 @@
+Vaadin-Package-Version: 1
+Implementation-Title: Liferay Control Panel Plugin for Vaadin
+Implementation-Version: ${project.version}
+Implementation-Vendor: Arcusys Ltd.

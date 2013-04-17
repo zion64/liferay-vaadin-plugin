@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.arcusys</groupId>
@@ -18,6 +17,7 @@
 		<vaadin-maven-plugin.version>7.0.1.a1</vaadin-maven-plugin.version>
 		<liferay.version>6.1.1</liferay.version>
 		<license.licenseName>apache_v2</license.licenseName>
+		<github.path>arcusys/${project.artifactId}</github.path>
 	</properties>
 
 	<inceptionYear>2013</inceptionYear>	
@@ -30,9 +30,11 @@
 	</licenses>
 	
 	<scm>
-		<connection>scm:git:https://github.com/arcusys/liferay-vaadin-plugin.git</connection>
-		<url>https://github.com/arcusys/liferay-vaadin-plugin</url>
-	</scm>
+		<connection>scm:git:https://github.com/${github.path}.git</connection>
+		<developerConnection>scm:git:https://github.com/${github.path}.git</developerConnection>
+		<url>https://github.com/${github.path}</url>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<dependencies>
 		<dependency>
@@ -102,6 +104,22 @@
 		<finalName>${project.artifactId}</finalName>
 		
 		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assemble/vaadin-directory.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals><goal>single</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.zeroturnaround</groupId>
 				<artifactId>jrebel-maven-plugin</artifactId>
