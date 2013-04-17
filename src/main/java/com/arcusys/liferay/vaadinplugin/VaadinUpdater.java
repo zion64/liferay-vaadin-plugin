@@ -61,12 +61,12 @@ You have now integrated Vaadin into your Liferay Porta and are ready to start cr
 *
 * */
 public class VaadinUpdater implements Runnable {
-    private static Log log = LogFactoryUtil.getLog(VaadinUpdater.class);
+    private static final Log log = LogFactoryUtil.getLog(VaadinUpdater.class);
 
     private final UpgradeListener upgradeListener;
 
     private final String downloadLocation;
-    private ILog outputLog;
+    private final ILog outputLog;
 
     public interface UpgradeListener {
         void updateComplete();
@@ -83,7 +83,7 @@ public class VaadinUpdater implements Runnable {
    private File backupDir = null;
    private String backupPath = null;
 
-   private  String fileSeparator = ControlPanelPortletUtil.FileSeparator;
+   private final String fileSeparator = ControlPanelPortletUtil.FileSeparator;
 
 
     public void run() {
@@ -365,6 +365,6 @@ public class VaadinUpdater implements Runnable {
     }
 
     private String getFileNameWithoutVersion(String fileName) {
-        return fileName.replaceAll("-[0-9.]+.*", ".jar");
+        return fileName.replaceAll("-(\\d\\.)+", ".");
     }
 }

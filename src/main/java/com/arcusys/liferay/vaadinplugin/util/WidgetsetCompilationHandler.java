@@ -34,13 +34,13 @@ import java.util.Set;
 //import com.arcusys.vaadin.controlpanel.util.WidgetsetCompiler.CompileOutputConsumer;
 
 public class WidgetsetCompilationHandler implements Runnable {
-    private static Log log = LogFactoryUtil.getLog(WidgetsetCompilationHandler.class);
+    private static final Log log = LogFactoryUtil.getLog(WidgetsetCompilationHandler.class);
 
     private WidgetsetCompiler compiler;
 
-    private String widgetset;
-    private List<VaadinAddonInfo> includeAddons;
-    private List<File> additionalDependencies;
+    private final String widgetset;
+    private final List<VaadinAddonInfo> includeAddons;
+    private final List<File> additionalDependencies;
 
     private ILog outputLog;
 
@@ -58,10 +58,7 @@ public class WidgetsetCompilationHandler implements Runnable {
 
             WidgetsetUtil.createWidgetset(tmpDir, widgetset, getIncludeWidgetsets());
 
-            compiler = new WidgetsetCompiler(outputLog);
-            compiler.setWidgetset(widgetset);
-            compiler.setOutputDir(tmpDir.getAbsolutePath());
-            compiler.setClasspathEntries(getClasspathEntries(tmpDir));
+            compiler = new WidgetsetCompiler(outputLog, widgetset, tmpDir.getAbsolutePath(), getClasspathEntries(tmpDir) );
 
             try {
                 compiler.compileWidgetset();
@@ -123,6 +120,12 @@ public class WidgetsetCompilationHandler implements Runnable {
 
         // The ant.jar is located in the portal lib dir
         classpathEntries.add(ControlPanelPortletUtil.getAntJarLocation());
+
+        // The validation-api.GA.jar is located in the portal lib dir
+        classpathEntries.add(ControlPanelPortletUtil.getValidationApi());
+
+        // The validation-api.GA-sources.jar is located in the portal lib dir
+        classpathEntries.add(ControlPanelPortletUtil.getValidationApiSources());
 
         for (VaadinAddonInfo addon : includeAddons) {
             classpathEntries.add(addon.getJarFile());

@@ -38,25 +38,6 @@ import java.util.regex.Pattern;
  */
 public class LinkParser {
 
-    public List<String> getVaadinVersions(String response, String majorVersion) {
-        Pattern pattern = Pattern.compile("<a href=\"" + majorVersion + ".*?./\"", Pattern.MULTILINE & Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(response);
-
-        ArrayList<String> versionList = new ArrayList<String>();
-
-        while (matcher.find()) {
-            String versionstring = matcher.group();
-            Pattern versionPattern = Pattern.compile(majorVersion + ".*?./\"", Pattern.CASE_INSENSITIVE);
-            Matcher versionMatcher = versionPattern.matcher(versionstring);
-            while (versionMatcher.find()) {
-                String version = versionMatcher.group().replace("\"", "").replace("/", "");
-                versionList.add(version);
-            }
-        }
-
-        return versionList;
-    }
-
     public List<VersionData> getVaadinVersionsAndDates(String response, String majorVersion, String parentUrl) {
         Pattern pattern = Pattern.compile("<a href=\"" + majorVersion + ".*?.\\d{2}-\\w{3}-\\d{4}\\s\\d{2}:\\d{2}?", Pattern.MULTILINE & Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(response);
@@ -99,9 +80,9 @@ public class LinkParser {
     }
 
     public class VersionData {
-        private DateTime date;
-        private String version;
-        private String url;
+        private final DateTime date;
+        private final String version;
+        private final String url;
 
         public VersionData(String version, DateTime date, String url) {
             this.version = version;

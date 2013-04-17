@@ -37,7 +37,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
 public abstract class WidgetsetUtil {
-    private static Log log = LogFactoryUtil.getLog(WidgetsetUtil.class);
+    private static final Log log = LogFactoryUtil.getLog(WidgetsetUtil.class);
 
     private static final String TMP_DIR_PREFIX = "vaadinws";
     private static final String BCKP_DIR_PREFIX = "vaadinbckp";
@@ -184,6 +184,15 @@ public abstract class WidgetsetUtil {
         return temp;
     }
 
+public static String removeGwtUnitCachePath() throws IOException {
+
+    String unitCachePath = FileUtils.getTempDirectoryPath() + File.separator + "gwt-unitCache";
+    File unitCacheDirectory = new File(unitCachePath);
+    if(unitCacheDirectory.exists()){
+       FileUtils.deleteDirectory(unitCacheDirectory);
+    }
+    return  unitCachePath;
+}
 
     public static void backupOldWidgetset(String originalWidgetset)
             throws IOException {

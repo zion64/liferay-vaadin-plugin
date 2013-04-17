@@ -42,6 +42,7 @@
 		<init-param>
 			<param-name>widgetset</param-name>
 			<param-value>com.arcusys.liferay.vaadinplugin.widgetset.ControlPanelWidgetSet</param-value>
+            <!--<param-value>com.vaadin.portal.PortalDefaultWidgetSet</param-value>-->
 		</init-param>
     </servlet>
     <servlet-mapping>
