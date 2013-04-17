@@ -290,7 +290,9 @@ public class ControlPanelUI extends UI
         vaadinVersionLabel.setValue(version);
         layout.addComponent(vaadinVersionLabel);
 
-        layout.addComponent(detailsButton);
+        if(version.startsWith("7")){
+            layout.addComponent(detailsButton);
+        }
 
         layout.addComponent(changeVersionButton);
 
