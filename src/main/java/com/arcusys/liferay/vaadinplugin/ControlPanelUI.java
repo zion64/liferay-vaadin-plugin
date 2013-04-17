@@ -523,6 +523,7 @@ public class ControlPanelUI extends UI
         compileWidgetsetButton.setEnabled(enabled);
         changeVersionButton.setEnabled(enabled);
         updateVaadinVersionButton.setEnabled(enabled);
+        detailsButton.setEnabled(enabled);
     }
 
     private Button createTerminateCompilationButton() {
