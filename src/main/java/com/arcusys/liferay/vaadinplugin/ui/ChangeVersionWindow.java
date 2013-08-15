@@ -22,10 +22,7 @@ package com.arcusys.liferay.vaadinplugin.ui;
  */
 
 import com.arcusys.liferay.vaadinplugin.ControlPanelUI;
-import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
-import com.arcusys.liferay.vaadinplugin.util.LinkParser;
-import com.arcusys.liferay.vaadinplugin.util.VaadinVersion;
-import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
+import com.arcusys.liferay.vaadinplugin.util.*;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.vaadin.data.Container;
@@ -49,12 +46,19 @@ public class ChangeVersionWindow extends Window {
     private static final String RELEASE_TYPE_PROPERTY = "releaseType";
 
     private Thread versionFetch = new Thread() {
+        private List<VaadinVersion> getVersions() {
+            List<VaadinVersion> versionList = VersionStorage.GetInstance().getVersions();
+            if (versionList == null) {
+                long cacheLifeTime = 1L*60*60*1000;
+                versionList = new VaadinVersionFetcher().fetchAllVersionList();
+                VersionStorage.GetInstance().setVersions(versionList, cacheLifeTime);
+            }
+            return versionList;
+        }
         @Override
         public void run() {
             try {
-                VaadinVersionFetcher fetcher  = new VaadinVersionFetcher();
-                List<VaadinVersion> versionList = fetcher.fetchAllVersionList();
-
+                List<VaadinVersion> versionList = getVersions();
                 getUI().getSession().getLockInstance().lock();
                     beanItemContainer.addAll(versionList);
                     updateState(true);
@@ -136,7 +140,7 @@ public class ChangeVersionWindow extends Window {
         versionSelection.setNullSelectionAllowed(false);
         versionSelection.setRequired(true);
 
-        versionFetch.start();
+        //versionFetch.start();
 
         layout.addComponent(includeVersions);
         layout.addComponent(versionSelection);
@@ -151,6 +155,10 @@ public class ChangeVersionWindow extends Window {
         updateState(false);
 
         updateFilter();
+    }
+
+    public void initialize() {
+        versionFetch.start();
     }
 
     private void updateFilter() {
