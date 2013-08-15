@@ -24,8 +24,14 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.server.Constants;
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.portlet.PortletConfig;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -34,10 +40,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import javax.portlet.PortletConfig;
-
-import com.vaadin.server.Constants;
 
 /**
  * Created with IntelliJ IDEA.
@@ -80,7 +82,7 @@ public abstract class ControlPanelPortletUtil {
             vaadinFiles = Arrays.asList(
                     new VaadinFileInfo(VAADIN_SERVER_JAR, portalPath, 100),
                     new VaadinFileInfo(VAADIN_CLIENT_JAR, vaadinClientJarsPath, 200),
-                    new VaadinFileInfo(VAADIN_THEMES_JAR,  portalPath, 300),
+                    new VaadinFileInfo(VAADIN_THEMES_JAR, portalPath, 300),
                     new VaadinFileInfo(VAADIN_THEME_COMPILER_JAR, portalPath, 400),
                     new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath, 500),
                     new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, 600, FileSeparator + "lib" + FileSeparator),
@@ -173,24 +175,19 @@ public abstract class ControlPanelPortletUtil {
     public static String getPortalVaadinJarVersion(String jarPath) throws IOException {
         JarFile jarFile = new JarFile(jarPath);
         try {
-
-            // Check Vaadin 7 version from manifest
-            String manifestVaadinVersion = getManifestVaadinVersion(jarFile);
-            if (manifestVaadinVersion != null) {
-                return manifestVaadinVersion;
+            String version = getManifestVaadinVersion(jarFile);
+            if (version == null) {
+                version = getPomVaadinVersion(jarFile);
             }
+
+            return version;
+        } catch (Exception ex) {
             return null;
-        }
-        catch (Exception ex){
-            return null;
-        }
-        finally {
-            if (jarFile != null) {
-                try {
-                    jarFile.close();
-                } catch (IOException e) {
-                    log.warn(e);
-                }
+        } finally {
+            try {
+                jarFile.close();
+            } catch (IOException e) {
+                log.warn(e);
             }
         }
     }
@@ -217,9 +214,43 @@ public abstract class ControlPanelPortletUtil {
         }
     }
 
-    private static String getManifestVaadinVersion(JarFile jarFile)
-            throws IOException {
-        return getManifestAttribute(jarFile, VAADIN_VERSION_MANIFEST_STRING);
+    private static String getManifestVaadinVersion(JarFile jarFile) {
+        try {
+            return getManifestAttribute(jarFile, VAADIN_VERSION_MANIFEST_STRING);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    private static String getPomVaadinVersion(JarFile jarFile) {
+        try {
+            JarEntry pomEntry = null;
+
+            // find pom.xml file in META-INF/maven and sub folders
+            Enumeration<JarEntry> enumerator = jarFile.entries();
+            while (enumerator.hasMoreElements()) {
+                JarEntry entry = enumerator.nextElement();
+                if (entry.getName().startsWith("META-INF/maven/") && entry.getName().endsWith("/pom.xml")) {
+                    pomEntry = entry;
+                    break;
+                }
+            }
+
+            // read project version from pom.xml
+            if (pomEntry != null) {
+                Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(jarFile.getInputStream(pomEntry));
+                NodeList children = document.getDocumentElement().getChildNodes();
+                for (int i = 0; i < children.getLength(); i++) {
+                    Node node = children.item(i + 1);
+                    if (node.getNodeName().equals("version")) {
+                        return node.getTextContent();
+                    }
+                }
+            }
+            return null;
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
     private static String getManifestVaadin6Version(JarFile jarFile)
