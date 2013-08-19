@@ -370,8 +370,7 @@ public abstract class ControlPanelPortletUtil {
                     int size;
                     byte[] buffer = new byte[2048];
 
-                    FileOutputStream fileOutputStream = new FileOutputStream(
-                            file);
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
                             fileOutputStream, buffer.length);
 
