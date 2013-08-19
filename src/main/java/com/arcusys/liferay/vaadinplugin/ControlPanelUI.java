@@ -35,7 +35,6 @@ import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
@@ -51,7 +50,6 @@ import com.arcusys.liferay.vaadinplugin.ui.AdditionalDependenciesWindow;
 
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 
 
 @SuppressWarnings("serial")
@@ -216,7 +214,9 @@ public class ControlPanelUI extends UI
         button.setStyleName(BaseTheme.BUTTON_LINK);
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                addWindow(new ChangeVersionWindow());
+                ChangeVersionWindow window = new ChangeVersionWindow();
+                addWindow(window);
+                window.initialize();
             }
         });
         return button;
