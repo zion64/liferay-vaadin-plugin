@@ -32,19 +32,11 @@ import java.util.List;
  */
 
 public class VersionStorage {
-    private static final VersionStorage instance = new VersionStorage();
 
-    public static VersionStorage GetInstance() {
-        return instance;
-    }
-
-    private List<VaadinVersion> versions;
+    private List<DownloadInfo> versions;
     private long expiredTime;
 
-    private VersionStorage() {
-    }
-
-    public List<VaadinVersion> getVersions() {
+    public List<DownloadInfo> getVersions() {
         if (versions == null) return null;
         if (new Date().getTime() > expiredTime) {
             versions = null;
@@ -52,7 +44,7 @@ public class VersionStorage {
         return versions;
     }
 
-    public void setVersions(List<VaadinVersion> versions, long lifetime) {
+    public void setVersions(List<DownloadInfo> versions, long lifetime) {
         this.versions = versions;
         this.expiredTime = new Date().getTime() + lifetime;
     }

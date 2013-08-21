@@ -40,35 +40,35 @@ import java.util.*;
 
 public class VaadinVersionFetcher {
 
-    public  List<VaadinVersion> fetchAllVersionList() {
-        Collection<VaadinVersion.VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinVersion.VaadinReleaseType>();
-        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.release);
-        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.nightly);
-        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.prerelease);
+    public  List<DownloadInfo> fetchAllVersionList() {
+        Collection<DownloadInfo.VaadinReleaseType> releaseTypesCollection = new ArrayList<DownloadInfo.VaadinReleaseType>();
+        releaseTypesCollection.add(DownloadInfo.VaadinReleaseType.release);
+        releaseTypesCollection.add(DownloadInfo.VaadinReleaseType.nightly);
+        releaseTypesCollection.add(DownloadInfo.VaadinReleaseType.prerelease);
 
         return fetchVersionList(releaseTypesCollection);
     }
 
-    public  VaadinVersion fetchLatestReleaseVersion() {
-        Collection<VaadinVersion.VaadinReleaseType> releaseTypesCollection = new ArrayList<VaadinVersion.VaadinReleaseType>();
-        releaseTypesCollection.add(VaadinVersion.VaadinReleaseType.release);
+    public DownloadInfo fetchLatestReleaseVersion() {
+        Collection<DownloadInfo.VaadinReleaseType> releaseTypesCollection = new ArrayList<DownloadInfo.VaadinReleaseType>();
+        releaseTypesCollection.add(DownloadInfo.VaadinReleaseType.release);
 
-        List<VaadinVersion> versions =  fetchVersionList(releaseTypesCollection);
+        List<DownloadInfo> versions =  fetchVersionList(releaseTypesCollection);
 
         return versions.get(versions.size() - 1);
     }
 
-    private   List<VaadinVersion> fetchVersionList(Collection<VaadinVersion.VaadinReleaseType> versiontypes) {
+    private   List<DownloadInfo> fetchVersionList(Collection<DownloadInfo.VaadinReleaseType> versiontypes) {
         LinkParser parser = new LinkParser();
-        List<VaadinVersion> vaadinVersions = new ArrayList<VaadinVersion>();
-        for(VaadinVersion.VaadinReleaseType type : versiontypes){
+        List<DownloadInfo> downloadInfos = new ArrayList<DownloadInfo>();
+        for(DownloadInfo.VaadinReleaseType type : versiontypes){
             try {
                 String vaadinMajorVersionListUrl = ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL + type + "/";
-                List<LinkParser.VersionData> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, VaadinVersion.VAADIN_MAJOR_VERSION);
+                List<LinkParser.VersionData> majorVersions = getVersions(parser, vaadinMajorVersionListUrl, DownloadInfo.VAADIN_MAJOR_VERSION.toString());
 
                 List<LinkParser.VersionData> minorVersions = new ArrayList<LinkParser.VersionData>();
 
-                if(type == VaadinVersion.VaadinReleaseType.prerelease){
+                if(type == DownloadInfo.VaadinReleaseType.prerelease){
                     List<LinkParser.VersionData> versions = new ArrayList<LinkParser.VersionData>();
                     for(LinkParser.VersionData version : majorVersions){
                         versions.addAll(getVersions(parser, version.getUrl(), version.getVersion()));
@@ -82,8 +82,9 @@ public class VaadinVersionFetcher {
 
                 for(LinkParser.VersionData versionData : minorVersions){
                     String zipName = "vaadin-all-" + versionData.getVersion() + ".zip";
-                    VaadinVersion vaadinVersion = new VaadinVersion(versionData.getVersion(), type ,versionData.getUrl() + zipName, versionData.getDate());
-                    if(vaadinVersion.isSupported()) vaadinVersions.add(vaadinVersion);
+                    Version version = new Version(versionData.getVersion());
+                    DownloadInfo downloadInfo = new DownloadInfo(version, type ,versionData.getUrl() + zipName, versionData.getDate());
+                    if(downloadInfo.isSupported()) downloadInfos.add(downloadInfo);
                 }
             }
             catch (Exception e)
@@ -92,14 +93,14 @@ public class VaadinVersionFetcher {
             }
         }
 
-        Collections.sort(vaadinVersions, new Comparator<VaadinVersion>() {
+        Collections.sort(downloadInfos, new Comparator<DownloadInfo>() {
             @Override
-            public int compare(VaadinVersion o1, VaadinVersion o2) {
+            public int compare(DownloadInfo o1, DownloadInfo o2) {
                 if (o1 == null) return -1;
                 if (o2 == null) return 1;
 
-                String vers1 = o1.getVersion().substring(0, 5);
-                String vers2 = o2.getVersion().substring(0, 5);
+                String vers1 = o1.getVersion().toString().substring(0, 5);
+                String vers2 = o2.getVersion().toString().substring(0, 5);
 
                 if (vers1.compareTo(vers2) == 0) {
 
@@ -114,7 +115,7 @@ public class VaadinVersionFetcher {
 
             }
         });
-        return vaadinVersions;
+        return downloadInfos;
     }
 
     private List<LinkParser.VersionData> getVersions(LinkParser parser, String versionListUrl, String majorVersion) throws IOException {

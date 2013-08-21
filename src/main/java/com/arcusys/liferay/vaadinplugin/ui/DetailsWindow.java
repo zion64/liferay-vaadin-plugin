@@ -22,11 +22,13 @@ package com.arcusys.liferay.vaadinplugin.ui;
 
 import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
 import com.arcusys.liferay.vaadinplugin.util.VaadinFileInfo;
+import com.arcusys.liferay.vaadinplugin.util.Version;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,7 +44,7 @@ public class DetailsWindow extends Window {
 
     private static final Log log = LogFactoryUtil.getLog(DetailsWindow.class);
 
-    public DetailsWindow(){
+    public DetailsWindow() {
         super("Vaadin components info");
         setModal(true);
         setContent(createVaadinDetails());
@@ -56,9 +58,10 @@ public class DetailsWindow extends Window {
         VerticalLayout vaadinDetails = new VerticalLayout();
         vaadinDetails.setMargin(new MarginInfo(true, true, false, true));
 
-        Collection<VaadinFileInfo> fileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        Version currentVersion = ControlPanelPortletUtil.getPortalVaadinVersion();
+        Collection<VaadinFileInfo> fileInfos = ControlPanelPortletUtil.getVaadinFilesInfo(currentVersion);
 
-        Collections.sort((List<VaadinFileInfo>) fileInfos, new Comparator<VaadinFileInfo>(){
+        Collections.sort((List<VaadinFileInfo>) fileInfos, new Comparator<VaadinFileInfo>() {
             @Override
             public int compare(VaadinFileInfo o1, VaadinFileInfo o2) {
                 if (o1 == null) return -1;
@@ -68,7 +71,7 @@ public class DetailsWindow extends Window {
         }
         );
 
-        for(VaadinFileInfo info: fileInfos){
+        for (VaadinFileInfo info : fileInfos) {
             VerticalLayout infoLayout = new VerticalLayout();
             infoLayout.setCaption(info.getName());
 
@@ -78,12 +81,11 @@ public class DetailsWindow extends Window {
             versionLayout.setSizeUndefined();
             versionLayout.addComponent(new Label("Version: "));
             String vaadinJarVersion;
-            try{
-                vaadinJarVersion = ControlPanelPortletUtil.getPortalVaadinJarVersion(info.getPlace() + ControlPanelPortletUtil.FileSeparator + info.getName() );
-            }catch (Exception ex)
-            {
-                vaadinJarVersion= "";
-                log.warn("Version for " +vaadinJarVersion + " couldn't be read.", ex);
+            try {
+                vaadinJarVersion = ControlPanelPortletUtil.getPortalVaadinJarVersion(info.getPlace() + ControlPanelPortletUtil.FileSeparator + info.getName());
+            } catch (Exception ex) {
+                vaadinJarVersion = "";
+                log.warn("Version for " + vaadinJarVersion + " couldn't be read.", ex);
             }
 
             versionLayout.addComponent(new Label(vaadinJarVersion));
@@ -103,6 +105,6 @@ public class DetailsWindow extends Window {
         }
 
         vaadinDetailLayout.addComponent(vaadinDetails);
-        return vaadinDetailLayout ;
+        return vaadinDetailLayout;
     }
 }

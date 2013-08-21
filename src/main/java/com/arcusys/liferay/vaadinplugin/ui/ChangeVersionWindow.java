@@ -30,13 +30,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
-import org.joda.time.DateTime;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 
 public class ChangeVersionWindow extends Window {
@@ -46,19 +40,20 @@ public class ChangeVersionWindow extends Window {
     private static final String RELEASE_TYPE_PROPERTY = "releaseType";
 
     private Thread versionFetch = new Thread() {
-        private List<VaadinVersion> getVersions() {
-            List<VaadinVersion> versionList = VersionStorage.GetInstance().getVersions();
+        private List<DownloadInfo> getVersions() {
+            VersionStorage versionStorage = ((ControlPanelUI)getUI()).getVersionStorage();
+            List<DownloadInfo> versionList = versionStorage.getVersions();
             if (versionList == null) {
                 long cacheLifeTime = 1L*60*60*1000;
                 versionList = new VaadinVersionFetcher().fetchAllVersionList();
-                VersionStorage.GetInstance().setVersions(versionList, cacheLifeTime);
+                versionStorage.setVersions(versionList, cacheLifeTime);
             }
             return versionList;
         }
         @Override
         public void run() {
             try {
-                List<VaadinVersion> versionList = getVersions();
+                List<DownloadInfo> versionList = getVersions();
                 getUI().getSession().getLockInstance().lock();
                     beanItemContainer.addAll(versionList);
                     updateState(true);
@@ -78,12 +73,12 @@ public class ChangeVersionWindow extends Window {
     };
 
     private final VerticalLayout layout = new VerticalLayout();
-    private final BeanItemContainer<VaadinVersion> beanItemContainer = new BeanItemContainer<VaadinVersion>(
-            VaadinVersion.class);
+    private final BeanItemContainer<DownloadInfo> beanItemContainer = new BeanItemContainer<DownloadInfo>(
+            DownloadInfo.class);
 
     private final OptionGroup includeVersions = new OptionGroup(
             "Also include non-stable versions", EnumSet.of(
-            VaadinVersion.VaadinReleaseType.prerelease, VaadinVersion.VaadinReleaseType.nightly));
+            DownloadInfo.VaadinReleaseType.prerelease, DownloadInfo.VaadinReleaseType.nightly));
 
     private final ProgressIndicator progressIndicator = new ProgressIndicator();
     private final ComboBox versionSelection = new ComboBox("Select version", beanItemContainer);
@@ -91,8 +86,7 @@ public class ChangeVersionWindow extends Window {
     private final Button changeVersionButton = new Button("Change version",
             new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {
-                    VaadinVersion version = (VaadinVersion) versionSelection
-                            .getValue();
+                    DownloadInfo version = (DownloadInfo) versionSelection.getValue();
                     if (version == null) {
 
                         Notification.show("Please select a version");
@@ -100,7 +94,7 @@ public class ChangeVersionWindow extends Window {
                     }
 
                     ControlPanelUI mainUI = (ControlPanelUI) getUI();
-                    mainUI.showWarningWindow(version.getDownloadUrl());
+                    mainUI.showWarningWindow(version);
                     close();
                 }
             });
@@ -128,7 +122,7 @@ public class ChangeVersionWindow extends Window {
 
         includeVersions.setMultiSelect(true);
         includeVersions.setValue(Collections
-                .singleton(VaadinVersion.VaadinReleaseType.release));
+                .singleton(DownloadInfo.VaadinReleaseType.release));
         includeVersions.setImmediate(true);
         includeVersions.addValueChangeListener(new Property.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
@@ -163,7 +157,7 @@ public class ChangeVersionWindow extends Window {
 
     private void updateFilter() {
         @SuppressWarnings("unchecked")
-        final Collection<VaadinVersion.VaadinReleaseType> types = (Collection<VaadinVersion.VaadinReleaseType>) includeVersions
+        final Collection<DownloadInfo.VaadinReleaseType> types = (Collection<DownloadInfo.VaadinReleaseType>) includeVersions
                 .getValue();
         beanItemContainer.removeAllContainerFilters();
         beanItemContainer.addContainerFilter(new Container.Filter() {
@@ -171,7 +165,7 @@ public class ChangeVersionWindow extends Window {
                     throws UnsupportedOperationException {
                 Object releaseType = item
                         .getItemProperty(RELEASE_TYPE_PROPERTY).getValue();
-                return releaseType == VaadinVersion.VaadinReleaseType.release
+                return releaseType == DownloadInfo.VaadinReleaseType.release
                         || types.contains(releaseType);
             }
 

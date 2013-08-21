@@ -31,21 +31,33 @@ package com.arcusys.liferay.vaadinplugin.util;
 
 import org.joda.time.DateTime;
 
-public final class VaadinVersion {
-    private final String version;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class DownloadInfo {
+    private final Version version;
     private final String downloadUrl;
     private final VaadinReleaseType releaseType;
-    public static final String VAADIN_MAJOR_VERSION = "7";
+    public static final Integer VAADIN_MAJOR_VERSION = 7;
     private final DateTime releaseDate;
     private final String name;
     private final DateTime startDate = new DateTime(2012, 10, 5, 11, 0, 0);
 
-    public VaadinVersion(String version, VaadinReleaseType releaseType, String downloadUrl, DateTime releaseDate) {
+    public enum VaadinReleaseType {
+        nightly, prerelease, release
+    }
+
+    public DownloadInfo(Version version, VaadinReleaseType releaseType, String downloadUrl, DateTime releaseDate) {
         this.downloadUrl = downloadUrl;
         this.version = version;
         this.releaseType = releaseType;
         this.releaseDate = releaseDate;
+
         this.name = version + " (" + releaseDate.toString("dd-MM-yyyy hh:mm") + ")";
+    }
+
+    public boolean isExists() {
+        return downloadUrl!= null && !downloadUrl.isEmpty();
     }
 
     public String getDownloadUrl() {
@@ -56,12 +68,12 @@ public final class VaadinVersion {
         return releaseType;
     }
 
-    public String getVersion() {
+    public Version getVersion() {
         return version;
     }
 
-    public String getName(){
-        return  name;
+    public String getName() {
+        return name;
     }
 
     public DateTime getReleaseDate() {
@@ -69,8 +81,7 @@ public final class VaadinVersion {
     }
 
     public boolean isSupported() {
-        String[] versionParts = version.split("\\.");
-        String majorVersion = versionParts[0];
+        Integer majorVersion = version.getNumericVersion()[0];
 
         // Other major versions than 7 not supported
         if (!VAADIN_MAJOR_VERSION.equals(majorVersion)) return false;
@@ -79,9 +90,5 @@ public final class VaadinVersion {
         if (releaseDate.isBefore(startDate)) return false;
 
         return true;
-    }
-
-    public enum VaadinReleaseType {
-        nightly, prerelease, release
     }
 }

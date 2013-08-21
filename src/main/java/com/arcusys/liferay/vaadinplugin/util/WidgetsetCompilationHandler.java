@@ -24,6 +24,7 @@ package com.arcusys.liferay.vaadinplugin.util;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class WidgetsetCompilationHandler implements Runnable {
 
     private ILog outputLog;
 
-    public WidgetsetCompilationHandler(String widgetset, List<VaadinAddonInfo> includeAddons, List<File> additionalDependencies, ILog outputLog){
+    public WidgetsetCompilationHandler(String widgetset, List<VaadinAddonInfo> includeAddons, List<File> additionalDependencies, ILog outputLog) {
         this.widgetset = widgetset;
         this.includeAddons = includeAddons;
         this.additionalDependencies = additionalDependencies;
@@ -58,7 +59,7 @@ public class WidgetsetCompilationHandler implements Runnable {
 
             WidgetsetUtil.createWidgetset(tmpDir, widgetset, getIncludeWidgetsets());
 
-            compiler = new WidgetsetCompiler(outputLog, widgetset, tmpDir.getAbsolutePath(), getClasspathEntries(tmpDir) );
+            compiler = new WidgetsetCompiler(outputLog, widgetset, tmpDir.getAbsolutePath(), getClasspathEntries(tmpDir));
 
             try {
                 compiler.compileWidgetset();
@@ -93,18 +94,26 @@ public class WidgetsetCompilationHandler implements Runnable {
                 System.out.println("Removing done...");
             } catch (IOException e) {
                 log.warn("Could not delete temporary directory: " + tmpDir, e);
-                System.out.println("Could not delete temporary directory: " + tmpDir + "  "  + e);
+                System.out.println("Could not delete temporary directory: " + tmpDir + "  " + e);
             }
 
             compilationFinished();
         }
     }
+
     private List<File> getClasspathEntries(File entry) {
+        Version version = ControlPanelPortletUtil.getPortalVaadinVersion();
+
         List<File> classpathEntries = new ArrayList<File>();
         classpathEntries.add(entry);
 
         // The vaadin-client-compiler JAR is located in the portal lib dir
         classpathEntries.add(ControlPanelPortletUtil.getVaadinClientCompilerJarLocation());
+
+        if (version.compareTo(ControlPanelPortletUtil.VAADIN_CLIENT_COMPILER_DEPS_LOW_VERSION) >= 0) {
+            // The vaadin-client-compiler-deps JAR is located in the portal lib dir
+            classpathEntries.add(ControlPanelPortletUtil.getVaadinClientCompilerDepsJarLocation());
+        }
 
         // The vaadin-client JAR is located in the portal lib dir
         classpathEntries.add(ControlPanelPortletUtil.getVaadinClientJarLocation());

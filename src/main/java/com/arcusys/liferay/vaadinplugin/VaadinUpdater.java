@@ -21,10 +21,7 @@ package com.arcusys.liferay.vaadinplugin;
  * #L%
  */
 
-import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
-import com.arcusys.liferay.vaadinplugin.util.ILog;
-import com.arcusys.liferay.vaadinplugin.util.VaadinFileInfo;
-import com.arcusys.liferay.vaadinplugin.util.WidgetsetUtil;
+import com.arcusys.liferay.vaadinplugin.util.*;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import org.apache.commons.io.FileUtils;
@@ -65,7 +62,7 @@ public class VaadinUpdater implements Runnable {
 
     private final UpgradeListener upgradeListener;
 
-    private final String downloadLocation;
+    private final DownloadInfo downloadInfo;
     private final ILog outputLog;
 
     public interface UpgradeListener {
@@ -74,8 +71,8 @@ public class VaadinUpdater implements Runnable {
         void updateFailed(String message);
     }
 
-    public VaadinUpdater(String downloadLocation, UpgradeListener upgradeListener, ILog outputLog) {
-        this.downloadLocation = downloadLocation;
+    public VaadinUpdater(DownloadInfo downloadInfo, UpgradeListener upgradeListener, ILog outputLog) {
+        this.downloadInfo = downloadInfo;
         this.upgradeListener = upgradeListener;
         this.outputLog = outputLog;
     }
@@ -105,9 +102,10 @@ public class VaadinUpdater implements Runnable {
                 vaadinClientJarsDir.mkdir();
             }
 
+            outputLog.log("Version " + downloadInfo.getVersion().toString());
             try {
-                outputLog.log("Downloading " + downloadLocation + " to " + tmpPath);
-                ControlPanelPortletUtil.download(downloadLocation, tmpPath, ControlPanelPortletUtil.VAADIN_ALL_ZIP);
+                outputLog.log("Downloading " + downloadInfo.getDownloadUrl() + " to " + tmpPath);
+                ControlPanelPortletUtil.download(downloadInfo.getDownloadUrl(), tmpPath, ControlPanelPortletUtil.VAADIN_ALL_ZIP);
                 vaadinZipFile = new File(tmpDir, ControlPanelPortletUtil.VAADIN_ALL_ZIP);
 
                 outputLog.log("Download complete.");
@@ -168,14 +166,7 @@ public class VaadinUpdater implements Runnable {
                 return;
             }
 
-            /*
-            * Copy vaadin-server.jar, vaadin-shared.jar, vaadin-shared-deps.jar, jsoup.jar into
-            * liferay-portal-6.1.1-ce-ga2/tomcat-7.0.27/webapps/ROOT/WEB-INF/lib.
-            * You can optionally remove the version numbers if you want to follow the Liferay standard.
-            *
-            * */
-
-            Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+            Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo(downloadInfo.getVersion());
 
             for (VaadinFileInfo fileInfo : vaadinFileInfos) {
                 replaceFile(zipDestinationPath + fileInfo.getInnerSourcePath(), fileInfo.getPlace(), fileInfo.getName());
@@ -217,7 +208,8 @@ public class VaadinUpdater implements Runnable {
             replaceFile(vaadin6Version.getParent() + fileSeparator, backupFilesPath, vaadin6Version.getName());
         }
 
-        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        Version currentVersion = ControlPanelPortletUtil.getPortalVaadinVersion();
+        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo(currentVersion);
         StringBuffer sb = new StringBuffer();
         Boolean isExistsNotBackuped = false;
 
@@ -259,7 +251,8 @@ public class VaadinUpdater implements Runnable {
 
         String backupFilesPath = backupPath + "/";
 
-        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo();
+        Version currentVersion = ControlPanelPortletUtil.getPortalVaadinVersion();
+        Collection<VaadinFileInfo> vaadinFileInfos = ControlPanelPortletUtil.getVaadinFilesInfo(currentVersion);
         StringBuffer sb = new StringBuffer();
         Boolean isExistsNotBackuped = false;
 
@@ -364,7 +357,18 @@ public class VaadinUpdater implements Runnable {
         return false;
     }
 
-    private String getFileNameWithoutVersion(String fileName) {
-        return fileName.replaceAll("-(\\d\\.)+", ".");
+    static String getFileNameWithoutVersion(String fileName) {
+        String name = fileName.replaceAll("-(\\d\\.)+.+", "");
+        if (fileName.endsWith(".GA.jar")) {
+            return name + ".GA.jar";
+        }
+        else if (fileName.endsWith(".GA-sources.jar")) {
+            return name + ".GA-sources.jar";
+        }
+        else {
+            String[] parts = fileName.split("\\.");
+            String extension = parts[parts.length - 1];
+            return name + "." + extension;
+        }
     }
 }

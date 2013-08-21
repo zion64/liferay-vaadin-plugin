@@ -58,6 +58,8 @@ public abstract class ControlPanelPortletUtil {
 
     public static final String VAADIN_CLIENT_COMPILED_JAR = "vaadin-client-compiled.jar";
     private static final String VAADIN_CLIENT_COMPILER_JAR = "vaadin-client-compiler.jar";
+    private static final String VAADIN_CLIENT_COMPILER_DEPS_JAR = "vaadin-client-compiler-deps.jar";
+    public static final Integer[] VAADIN_CLIENT_COMPILER_DEPS_LOW_VERSION = new Integer[]{7, 1, 0};
     private static final String VAADIN_CLIENT_JAR = "vaadin-client.jar";
     private static final String VAADIN_SHARED_JAR = "vaadin-shared.jar";
     private static final String VAADIN_SHARED_DEPS_JAR = "vaadin-shared-deps.jar";
@@ -73,6 +75,15 @@ public abstract class ControlPanelPortletUtil {
 
     public static final String FileSeparator = File.separator;
 
+    public static Collection<VaadinFileInfo> getVaadinFilesInfo(Version vaadinVersion) {
+        List<VaadinFileInfo> result = new ArrayList<VaadinFileInfo>();
+        for (VaadinFileInfo fileInfo : getVaadinFilesInfo()) {
+            if (vaadinVersion.compareTo(fileInfo.getVaadinVersionLow()) >= 0)
+                result.add(fileInfo);
+        }
+        return result;
+    }
+
     public static Collection<VaadinFileInfo> getVaadinFilesInfo() {
 
         if (vaadinFiles == null) {
@@ -87,6 +98,7 @@ public abstract class ControlPanelPortletUtil {
                     new VaadinFileInfo(VAADIN_SHARED_JAR, portalPath, 500),
                     new VaadinFileInfo(VAADIN_SHARED_DEPS_JAR, portalPath, 600, FileSeparator + "lib" + FileSeparator),
                     new VaadinFileInfo(VAADIN_CLIENT_COMPILER_JAR, vaadinClientJarsPath, 700),
+                    new VaadinFileInfo(VAADIN_CLIENT_COMPILER_DEPS_JAR, vaadinClientJarsPath, 750, FileSeparator + "lib" + FileSeparator, VAADIN_CLIENT_COMPILER_DEPS_LOW_VERSION),
                     new VaadinFileInfo(JSOUP_JAR, portalPath, 800, FileSeparator + "lib" + FileSeparator),
                     new VaadinFileInfo(VALIDATON_API, portalPath, 900, FileSeparator + "lib" + FileSeparator),
                     new VaadinFileInfo(VALIDATON_API_SOURCES, portalPath, 1000, FileSeparator + "lib" + FileSeparator)
@@ -126,6 +138,11 @@ public abstract class ControlPanelPortletUtil {
         return new File(portalLibDir, VAADIN_CLIENT_COMPILER_JAR);
     }
 
+    public static File getVaadinClientCompilerDepsJarLocation() {
+        File portalLibDir = new File(getVaadinClientJarsDir());
+        return new File(portalLibDir, VAADIN_CLIENT_COMPILER_DEPS_JAR);
+    }
+
     public static File getVaadinClientJarLocation() {
         File portalLibDir = new File(getVaadinClientJarsDir());
         return new File(portalLibDir, VAADIN_CLIENT_JAR);
@@ -160,6 +177,28 @@ public abstract class ControlPanelPortletUtil {
         return new File(portalLibDir, VALIDATON_API_SOURCES);
     }
 
+    public static Version getPortalVaadinVersion() {
+        String versionRaw = null;
+        try {
+            versionRaw = ControlPanelPortletUtil.getPortalVaadinServerVersion();
+        } catch (IOException e) {
+            log.warn("vaadin-server.jar couldn't be read.", e);
+        }
+
+        if (versionRaw == null) try {
+            log.warn("vaadin-server.jar couldn't be read.");
+            versionRaw = ControlPanelPortletUtil.getPortalVaadin6Version();
+        } catch (IOException e) {
+            log.warn("vaadin.jar couldn't be read.", e);
+        }
+
+        if (versionRaw == null) {
+            log.warn("vaadin.jar couldn't be read.");
+        }
+
+        return new Version(versionRaw);
+    }
+
     /**
      * Returns the Vaadin version for the Vaadin jar used in the portal.
      *
@@ -167,8 +206,7 @@ public abstract class ControlPanelPortletUtil {
      *         be determined
      * @throws java.io.IOException If the portal's Vaadin jar cannot be read
      */
-    public static String getPortalVaadinVersion() throws IOException {
-
+    public static String getPortalVaadinServerVersion() throws IOException {
         return getPortalVaadinJarVersion(getVaadinServerJarLocation().getAbsolutePath());
     }
 
