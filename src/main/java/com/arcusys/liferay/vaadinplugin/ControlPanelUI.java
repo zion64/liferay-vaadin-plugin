@@ -45,6 +45,7 @@ import org.joda.time.DateTime;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -286,15 +287,18 @@ public class ControlPanelUI extends UI {
         String version = null;
         try {
             version = ControlPanelPortletUtil.getPortalVaadinServerVersion();
-        } catch (IOException e) {
-            log.warn("vaadin-server.jar couldn't be read.", e);
+        } catch (FileNotFoundException e) {
+            log.warn("vaadin-server.jar couldn't be read. file not found.");
+        }
+        catch (IOException e) {
+            log.warn("vaadin-server.jar couldn't be read. ", e);
         }
 
         if (version == null) {
             try {
                 version = ControlPanelPortletUtil.getPortalVaadin6Version();
             } catch (IOException e) {
-                log.warn("vaadin.jar couldn't be read.", e);
+                log.warn("vaadin.jar couldn't be read.");
             }
         }
 
