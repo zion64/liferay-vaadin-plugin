@@ -21,8 +21,10 @@ package com.arcusys.liferay.vaadinplugin;
  * #L%
  */
 
+import com.arcusys.liferay.vaadinplugin.ui.AdditionalDependenciesWindow;
 import com.arcusys.liferay.vaadinplugin.ui.ChangeVersionWindow;
 import com.arcusys.liferay.vaadinplugin.ui.DetailsWindow;
+import com.arcusys.liferay.vaadinplugin.ui.OutputConsole;
 import com.arcusys.liferay.vaadinplugin.util.*;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -38,27 +40,25 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.BaseTheme;
+import org.joda.time.DateTime;
 
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.arcusys.liferay.vaadinplugin.ui.OutputConsole;
-import com.arcusys.liferay.vaadinplugin.ui.AdditionalDependenciesWindow;
-
-import javax.portlet.PortletPreferences;
-import javax.portlet.PortletRequest;
-
 
 @SuppressWarnings("serial")
-public class ControlPanelUI extends UI
-{
+public class ControlPanelUI extends UI {
     private static final String WARNING_UPGRADE_VAADIN_VERSION_NOT_FOUND = "Could not determine the newest Vaadin version. Please download it manually from "
             + ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL;
     private static final String WARNING_UPGRADE_VAADIN_VERSION = "Changing the Vaadin version will affect all the portlets. Two Vaadin versions can't be used at the same time.";
     private static final int POLLING_INTERVAL_MS = 500;
+
+    private VersionStorage versionStorage;
 
     private VerticalLayout mainLayout;
     private Panel settingsPanel;
@@ -101,7 +101,7 @@ public class ControlPanelUI extends UI
 
     private ProgressIndicator compilationProgressIndicator;
 
-    private NewestVaadinVersion newestVaadinVersion;
+    private DownloadInfo newestDownloadInfo;
 
     private VaadinUpdater vaadinUpdater;
     private ILog outputLog;
@@ -112,7 +112,7 @@ public class ControlPanelUI extends UI
     protected void init(final VaadinRequest request) {
         //checkResources();
 
-        newestVaadinVersion = new NewestVaadinVersion();
+        newestDownloadInfo = getNewestDownloadInfo();
 
         onRequestStart((PortletRequest) request);
 
@@ -151,11 +151,11 @@ public class ControlPanelUI extends UI
         changeVersionButton = createChangeVersionButton();
         updateVaadinVersionButton = createUpdateVaadinVersionButton();
 
-        String vaadinNewestVersion = newestVaadinVersion.getVersion();
+        Version vaadinNewestVersion = newestDownloadInfo.getVersion();
         //add details
         detailsButton = createDetailsButton();
 
-        vaadinVersionLayout = createVaadinVersionLayout(vaadinNewestVersion, changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton );
+        vaadinVersionLayout = createVaadinVersionLayout(vaadinNewestVersion.toString(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton);
         settingsLayout.addComponent(vaadinVersionLayout);
 
 
@@ -198,7 +198,23 @@ public class ControlPanelUI extends UI
         addonsNotFoundLabel = createAddonsNotFoundLabel();
     }
 
+    private static DownloadInfo getNewestDownloadInfo() {
+        VaadinVersionFetcher versionFetcher = new VaadinVersionFetcher();
 
+        try {
+            DownloadInfo latestVersion = versionFetcher.fetchLatestReleaseVersion();
+
+            if (latestVersion == null) {
+                return new DownloadInfo( new Version("unknown"), DownloadInfo.VaadinReleaseType.release, "", new DateTime());
+            } else {
+                return latestVersion;
+            }
+
+        } catch (Exception e) {
+            log.warn(e);
+            return new DownloadInfo(new Version("unknown"), DownloadInfo.VaadinReleaseType.release, "", new DateTime());
+        }
+    }
 
     private ProgressIndicator createProgressIndicator() {
         ProgressIndicator progressIndicator = new ProgressIndicator();
@@ -241,19 +257,17 @@ public class ControlPanelUI extends UI
 
             public void buttonClick(Button.ClickEvent event) {
 
-                if (!newestVaadinVersion.wasFound()) {
+                if (!newestDownloadInfo.isExists()) {
                     Notification.show(
                             WARNING_UPGRADE_VAADIN_VERSION_NOT_FOUND,
                             Notification.Type.ERROR_MESSAGE);
                     return;
                 }
 
-                String downloadLocation = newestVaadinVersion.getLocation();
-
-                outputLog.log("Location for download: " + downloadLocation);
+                outputLog.log("Location for download: " + newestDownloadInfo.getDownloadUrl());
 
                 try {
-                    addWindow(new WarningWindow(downloadLocation));
+                    addWindow(new WarningWindow(newestDownloadInfo));
                 } catch (Exception ex) {
                     outputLog.log(ex.getMessage());
                 }
@@ -262,7 +276,7 @@ public class ControlPanelUI extends UI
         return button;
     }
 
-    private HorizontalLayout createVaadinVersionLayout(String newestVersion, Button changeVersionButton, Button updateVaadinVersionButton, ProgressIndicator versionUpgradeProgressIndicator,Button detailsButton) {
+    private HorizontalLayout createVaadinVersionLayout(String newestVersion, Button changeVersionButton, Button updateVaadinVersionButton, ProgressIndicator versionUpgradeProgressIndicator, Button detailsButton) {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setCaption("Vaadin Jar Version");
@@ -271,17 +285,17 @@ public class ControlPanelUI extends UI
         vaadinVersionLabel.setSizeUndefined();
         String version = null;
         try {
-            version = ControlPanelPortletUtil.getPortalVaadinVersion();
+            version = ControlPanelPortletUtil.getPortalVaadinServerVersion();
         } catch (IOException e) {
             log.warn("vaadin-server.jar couldn't be read.", e);
         }
 
-        if(version == null){
-        try {
-            version = ControlPanelPortletUtil.getPortalVaadin6Version();
-        } catch (IOException e) {
-            log.warn("vaadin.jar couldn't be read.", e);
-        }
+        if (version == null) {
+            try {
+                version = ControlPanelPortletUtil.getPortalVaadin6Version();
+            } catch (IOException e) {
+                log.warn("vaadin.jar couldn't be read.", e);
+            }
         }
 
         if (version == null) {
@@ -290,7 +304,7 @@ public class ControlPanelUI extends UI
         vaadinVersionLabel.setValue(version);
         layout.addComponent(vaadinVersionLabel);
 
-        if(version.startsWith("7")){
+        if (version.startsWith("7")) {
             layout.addComponent(detailsButton);
         }
 
@@ -479,7 +493,7 @@ public class ControlPanelUI extends UI
                         setCompilationModeEnabled(true);
                         outputConsole.clear();
 
-                        compiler = new WidgetsetCompilationHandler(activeWidgetsetLabel.getValue(), getIncludeAddons(),includedDependencies, outputLog
+                        compiler = new WidgetsetCompilationHandler(activeWidgetsetLabel.getValue(), getIncludeAddons(), includedDependencies, outputLog
                         ) {
                             @Override
                             public void compilationFinished() {
@@ -610,9 +624,9 @@ public class ControlPanelUI extends UI
     }
 
 
-    private void downloadVaadin(String downloadLocation) {
+    private void downloadVaadin(DownloadInfo version) {
 
-        vaadinUpdater = new VaadinUpdater(downloadLocation,
+        vaadinUpdater = new VaadinUpdater(version,
                 new VaadinUpdater.UpgradeListener() {
 
                     public void updateComplete() {
@@ -633,10 +647,9 @@ public class ControlPanelUI extends UI
 
                     public void updateFailed(String message) {
                         outputLog.log(message);
-                        try{
-                        vaadinUpdater.restoreFromBackup();
-                        }catch (Exception ex)
-                        {
+                        try {
+                            vaadinUpdater.restoreFromBackup();
+                        } catch (Exception ex) {
                             outputLog.log("ERROR: Can't restore files. Exception: " + ex.getMessage());
                         }
                         done(false);
@@ -652,7 +665,7 @@ public class ControlPanelUI extends UI
 
     private class WarningWindow extends Window {
 
-        public WarningWindow(final String downloadUrl) {
+        public WarningWindow(final DownloadInfo version) {
             super("Warning!");
             setModal(true);
 
@@ -663,7 +676,7 @@ public class ControlPanelUI extends UI
 
             layout.addComponent(new Label(WARNING_UPGRADE_VAADIN_VERSION, ContentMode.HTML));
 
-            layout.addComponent(new Label( "After updating, you will need to redeploy all portlets using Vaadin. Otherwise, the portlets might fail randomly because of version conflicts."));
+            layout.addComponent(new Label("After updating, you will need to redeploy all portlets using Vaadin. Otherwise, the portlets might fail randomly because of version conflicts."));
 
             List<Portlet> detectedVaadinPortlets = new ArrayList<Portlet>();
             List<Portlet> portlets = PortletLocalServiceUtil.getPortlets();
@@ -705,7 +718,7 @@ public class ControlPanelUI extends UI
                 public void buttonClick(Button.ClickEvent event) {
                     close();
 
-                    downloadVaadin(downloadUrl);
+                    downloadVaadin(version);
 
                 }
             });
@@ -725,7 +738,7 @@ public class ControlPanelUI extends UI
         }
 
         private boolean isVaadinPortlet(Portlet portlet) {
-            if(portlet == null) return false;
+            if (portlet == null) return false;
 
             if (isVaadin6Portlet(portlet)) return true;
             if (isVaadin7Portlet(portlet)) return true;
@@ -736,7 +749,7 @@ public class ControlPanelUI extends UI
 
         private boolean isVaadin6Portlet(Portlet portlet) {
             String portletClass = portlet.getPortletClass();
-             return  portletClass.startsWith("com.vaadin.terminal.gwt.server");
+            return portletClass.startsWith("com.vaadin.terminal.gwt.server");
         }
 
         private boolean isVaadin7Portlet(Portlet portlet) {
@@ -745,14 +758,19 @@ public class ControlPanelUI extends UI
         }
     }
 
-    public void showWarningWindow(String downloadUrl) {
-        addWindow(new WarningWindow(downloadUrl));
+    public void showWarningWindow(DownloadInfo version) {
+        addWindow(new WarningWindow(version));
     }
 
     private void refreshVersionInfo() {
-        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestVaadinVersion.getVersion(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton);
+        HorizontalLayout newVersionLayout = createVaadinVersionLayout(newestDownloadInfo.getVersion().toString(), changeVersionButton, updateVaadinVersionButton, versionUpgradeProgressIndicator, detailsButton);
         settingsLayout.replaceComponent(vaadinVersionLayout, newVersionLayout);
 
         vaadinVersionLayout = newVersionLayout;
+    }
+
+    public VersionStorage getVersionStorage() {
+        if (versionStorage == null) versionStorage = new VersionStorage();
+        return versionStorage;
     }
 }
