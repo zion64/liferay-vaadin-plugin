@@ -181,6 +181,8 @@ public abstract class ControlPanelPortletUtil {
         String versionRaw = null;
         try {
             versionRaw = ControlPanelPortletUtil.getPortalVaadinServerVersion();
+        } catch (FileNotFoundException e) {
+            log.warn("vaadin-server.jar couldn't be read. file not found");
         } catch (IOException e) {
             log.warn("vaadin-server.jar couldn't be read.", e);
         }
