@@ -73,6 +73,6 @@ public class Version {
             int compareResult = numericVersion[i].compareTo(versionToCompare[i]);
             if (compareResult != 0) return compareResult;
         }
-        return Integer.compare(numericVersion.length, versionToCompare.length);
+        return Integer.valueOf(numericVersion.length).compareTo(Integer.valueOf(versionToCompare.length));
     }
 }
