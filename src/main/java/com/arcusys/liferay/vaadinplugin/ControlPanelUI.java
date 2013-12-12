@@ -21,11 +21,35 @@ package com.arcusys.liferay.vaadinplugin;
  * #L%
  */
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
+
+import org.joda.time.DateTime;
+
 import com.arcusys.liferay.vaadinplugin.ui.AdditionalDependenciesWindow;
 import com.arcusys.liferay.vaadinplugin.ui.ChangeVersionWindow;
 import com.arcusys.liferay.vaadinplugin.ui.DetailsWindow;
 import com.arcusys.liferay.vaadinplugin.ui.OutputConsole;
-import com.arcusys.liferay.vaadinplugin.util.*;
+import com.arcusys.liferay.vaadinplugin.util.ControlPanelPortletUtil;
+import com.arcusys.liferay.vaadinplugin.util.DownloadInfo;
+import com.arcusys.liferay.vaadinplugin.util.ILog;
+import com.arcusys.liferay.vaadinplugin.util.VaadinAddonInfo;
+import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
+import com.arcusys.liferay.vaadinplugin.util.Version;
+import com.arcusys.liferay.vaadinplugin.util.VersionStorage;
+import com.arcusys.liferay.vaadinplugin.util.WidgetsetCompilationHandler;
+import com.arcusys.liferay.vaadinplugin.util.WidgetsetUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
@@ -38,18 +62,19 @@ import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
-import org.joda.time.DateTime;
-
-import javax.portlet.PortletPreferences;
-import javax.portlet.PortletRequest;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 @SuppressWarnings("serial")

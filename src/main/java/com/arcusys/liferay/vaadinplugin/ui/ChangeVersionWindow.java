@@ -21,17 +21,30 @@ package com.arcusys.liferay.vaadinplugin.ui;
  * #L%
  */
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+
 import com.arcusys.liferay.vaadinplugin.ControlPanelUI;
-import com.arcusys.liferay.vaadinplugin.util.*;
+import com.arcusys.liferay.vaadinplugin.util.DownloadInfo;
+import com.arcusys.liferay.vaadinplugin.util.VaadinVersionFetcher;
+import com.arcusys.liferay.vaadinplugin.util.VersionStorage;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.ui.*;
-
-import java.util.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.OptionGroup;
+import com.vaadin.ui.ProgressIndicator;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class ChangeVersionWindow extends Window {
     private static final Log log = LogFactoryUtil.getLog(ChangeVersionWindow.class);

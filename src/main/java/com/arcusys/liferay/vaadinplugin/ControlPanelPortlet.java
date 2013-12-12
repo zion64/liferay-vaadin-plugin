@@ -21,6 +21,7 @@ package com.arcusys.liferay.vaadinplugin;
  */
 
 import com.vaadin.server.DeploymentConfiguration;
+import com.vaadin.server.ServiceException;
 import com.vaadin.server.VaadinPortlet;
 import com.vaadin.server.VaadinPortletService;
 import com.vaadin.server.VaadinRequest;
@@ -30,8 +31,8 @@ public class ControlPanelPortlet extends VaadinPortlet {
 
 	@Override
 	protected VaadinPortletService createPortletService(
-            DeploymentConfiguration deploymentConfiguration) {
-        return new VaadinPortletService(this, deploymentConfiguration) {
+            DeploymentConfiguration deploymentConfiguration) throws ServiceException {
+		VaadinPortletService service = new VaadinPortletService(this, deploymentConfiguration) {
         	private static final long serialVersionUID = 1L;
 			@Override
 			public final String getStaticFileLocation(VaadinRequest request) {
@@ -39,5 +40,8 @@ public class ControlPanelPortlet extends VaadinPortlet {
 				return request.getContextPath();
 			}
         };
+        
+        service.init();
+        return service;
     }
 }
