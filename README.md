@@ -3,20 +3,22 @@ Liferay Control Panel Plugin for Vaadin
 
 Usage
 -----
-Using Vaadin Control Panel you can easily handle Vaadin and Vaadin add-ons in a Liferay portal. The included portlet takes care of downloading new versions of Vaadin, building the widgetset for you and placing it in the correct location. All you have to do is download the add-ons and start using them. 
+By using Vaadin Control Panel you can easily handle Vaadin and Vaadin add-ons in a Liferay portal. The included portlet takes care of downloading new versions of Vaadin, building the widgetset for you and placing it in the correct location. All you have to do is download the add-ons and start using them. 
 
-### Installation: 
-* Drop the included WAR in the Liferay deploy directory Changing the used version of Vaadin: 
-* Open the portlet and click Change version * Select the desired Vaadin release 
-* The portlet will download the selected version of Vaadin and the required version of GWT 
+### Installation 
+* Drop the included WAR in the Liferay deploy directory
+* Changing the used version of Vaadin: 
+	* Open the portlet and click Change version
+	* Select the desired Vaadin release 
+	* The portlet will download the selected version of Vaadin and the required version of GWT 
 * After changing the Vaadin version, you should also recompile the widgetset and redeploy all portlets using Vaadin to get them to use the new version. 
 
-### Adding add-ons: 
+### Adding add-ons
 * Download the add-on(s) from Vaadin Directory 
 * Place the add-on jar file(s) in the WEB-INF/lib for Liferay's root 
 * If an add-on depends on additional jars, ensure they are found in WEB-INF/lib aswell 
  
-### Rebuilding the widgetset: 
+### Rebuilding the widgetset
 * Open the portlet and select the add-ons you want to include. 
 * Select any additional depencies in the portlet 
 * Click compile and wait for the process to finish 
