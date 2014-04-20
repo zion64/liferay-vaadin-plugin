@@ -77,7 +77,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
 
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "deprecation" })
 public class ControlPanelUI extends UI {
     private static final String WARNING_UPGRADE_VAADIN_VERSION_NOT_FOUND = "Could not determine the newest Vaadin version. Please download it manually from "
             + ControlPanelPortletUtil.VAADIN_DOWNLOAD_URL;
@@ -90,7 +90,7 @@ public class ControlPanelUI extends UI {
     private Panel settingsPanel;
     private FormLayout settingsLayout;
 
-    private ProgressIndicator versionUpgradeProgressIndicator;
+	private ProgressIndicator versionUpgradeProgressIndicator;
 
     private Button changeVersionButton;
 
@@ -113,7 +113,8 @@ public class ControlPanelUI extends UI {
     private Label additionalDependenciesLabel;
     private List<File> includedDependencies = null;
 
-    private boolean needsUpdating;
+    @SuppressWarnings("unused")
+	private boolean needsUpdating;
 
     private Button additionalDependenciesButton;
 
@@ -162,7 +163,8 @@ public class ControlPanelUI extends UI {
     private void createUI() {
         //create main layout
         mainLayout = new VerticalLayout();
-        mainLayout.setWidth("720px");
+//        mainLayout.setWidth("720px");
+        mainLayout.setWidth("100%");
         mainLayout.setSpacing(true);
 
         setContent(mainLayout);
