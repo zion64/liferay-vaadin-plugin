@@ -26,6 +26,7 @@ import com.vaadin.server.VaadinPortlet;
 import com.vaadin.server.VaadinPortletService;
 import com.vaadin.server.VaadinRequest;
 
+
 public class ControlPanelPortlet extends VaadinPortlet {
 	private static final long serialVersionUID = 1L;
 
