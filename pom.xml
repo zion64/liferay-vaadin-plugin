@@ -14,7 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>7.1.8</vaadin.version>
+        <vaadin.version>7.1.13</vaadin.version>
         <vaadin-maven-plugin.version>${vaadin.version}</vaadin-maven-plugin.version>
         <license.licenseName>apache_v2</license.licenseName>
         <github.path>arcusys/${project.artifactId}</github.path>
